@@ -12,6 +12,7 @@ response = requests.get(url)
 
 soup = BeautifulSoup(response.text, "html.parser")
 
+# print(soup.prettify)
 
 for i in range(36, len(soup.findAll('a'))+1):
     one_a_tag = soup.findAll('a')[i]
