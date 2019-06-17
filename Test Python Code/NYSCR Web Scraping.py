@@ -2,6 +2,12 @@
 import requests
 import time
 from bs4 import BeautifulSoup
+import pyodbc
+conn = pyodbc.connect('Driver={SQL Server};'
+                      'Server=US-NYC-NL000860\SQLEXPRESS;'
+                      'Database=TutorialDB;'
+                      'Trusted_Connection=yes;')
+cursor = conn.cursor()
 
 # Create arrays to store the data. Try to collect as much as possible from the
 # website, and see what fits into the SQL schema
@@ -13,6 +19,9 @@ locations = []
 categories = []
 ad_type = []
 listing_number = []
+
+
+
 # Keeping track of the page we are scraping
 pageNumber = 1
 # 1 and 50 are the pages we want to start at. str() casts these as strings
@@ -34,39 +43,59 @@ for start in startNum:
     # from the specific job. The way this is done will differ for each website
     for container in job_containers:
         # Collecting the information from the container
-        container_outputs = container.findAll('div', class_="resultText")
-        if(len(container_outputs) > 6):
-            if(pageNumber == 1):
-                listing_number.append(int(container.find('td', class_="c1 tblColor").text))
-            if(pageNumber == 2):
-                listing_number.append(int(container.find('td', class_="c1 tblColor").text)+49)
-            for num in range(0, len(container_outputs), 1):
-                # Insert the information into arrays
-                if(num == 0):
-                    descriptions.append(container_outputs[num].text)
-                if(num == 1):
-                    agencies.append(container_outputs[num].text)
-                if(num == 2):
-                    issue_dates.append(container_outputs[num].text)
-                if(num == 3):
-                    due_dates.append(container_outputs[num].text)
-                if(num == 4):
-                    locations.append(container_outputs[num].text)
-                if(num == 5):
-                    categories.append(container_outputs[num].text)
-                if(num == 6):
-                    ad_type.append(container_outputs[num].text)
+
+        #print(container.text)
+
+        print(container.text)
+        cursor.execute('INSERT into JobsTest1 (Description) VALUES (\'' +
+                container.text.replace('\'','\'\'') + '\')')
+                #(''' & container.text & ''')
+                #''')
+
+        conn.commit()
+
+
+        # cursor.execute('''
+        #                 INSERT INTO TutorialDB.dbo.JobsTest1 (Description)
+        #                 VALUES
+        #                 ('''' + container.text + '''')
+        #                 ''')
+        #
+        # #cursor.execute('INSERT into JobsTest1 (Description) VALUES('Will Hunter)')
+        # conn.commit()
+        # # container_outputs = container.findAll('div', class_="resultText")
+        # if(len(container_outputs) > 6):
+        #     if(pageNumber == 1):
+        #         listing_number.append(int(container.find('td', class_="c1 tblColor").text))
+        #     if(pageNumber == 2):
+        #         listing_number.append(int(container.find('td', class_="c1 tblColor").text)+49)
+        #     for num in range(0, len(container_outputs), 1):
+        #         # Insert the information into arrays
+        #         if(num == 0):
+        #             descriptions.append(container_outputs[num].text)
+        #         if(num == 1):
+        #             agencies.append(container_outputs[num].text)
+        #         if(num == 2):
+        #             issue_dates.append(container_outputs[num].text)
+        #         if(num == 3):
+        #             due_dates.append(container_outputs[num].text)
+        #         if(num == 4):
+        #             locations.append(container_outputs[num].text)
+        #         if(num == 5):
+        #             categories.append(container_outputs[num].text)
+        #         if(num == 6):
+        #             ad_type.append(container_outputs[num].text)
     pageNumber += 1
     # 1 second delay to avoid overtaxing the server
     time.sleep(1)
 # Print statements as a debug
-print(len(categories))
-for num in range(0, len(categories)):
-    print(listing_number[num])
-    print(descriptions[num])
-    print(agencies[num])
-    print(issue_dates[num])
-    print(due_dates[num])
-    print(locations[num])
-    print(categories[num])
-    print(ad_type[num])
+# print(len(categories))
+# for num in range(0, len(categories)):
+    # print(listing_number[num])
+    # print(descriptions[num])
+    # print(agencies[num])
+    # print(issue_dates[num])
+    # print(due_dates[num])
+    # print(locations[num])
+    # print(categories[num])
+    # print(ad_type[num])
