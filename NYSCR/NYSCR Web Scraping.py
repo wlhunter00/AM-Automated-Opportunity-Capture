@@ -6,7 +6,7 @@ import pyodbc
 # Connecting to SQL server
 conn = pyodbc.connect('Driver={SQL Server};'
                       'Server=US-NYC-NL000860\SQLEXPRESS;'
-                      'Database=Opportunity Hunter;'
+                      'Database=TutorialDB;'
                       'Trusted_Connection=yes;')
 cursor = conn.cursor()
 # Keeping track of the page we are scraping
@@ -33,7 +33,7 @@ for start in startNum:
         # Print statement as debug
         # print(container.text)
         # Insert text block plus URL into SQL table
-        cursor.execute('INSERT into NYSCRuncleaned (BodyText) VALUES (\''
+        cursor.execute('INSERT into JobsTest1 (Description) VALUES (\''
                 + container.text.replace('\'','\'\'') + ' URL:' + url + '\')')
         conn.commit()
     pageNumber += 1
