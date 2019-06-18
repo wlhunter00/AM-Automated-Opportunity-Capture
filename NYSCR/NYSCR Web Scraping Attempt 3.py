@@ -2,7 +2,7 @@
 import requests
 import time
 from bs4 import BeautifulSoup
-
+import pyodbc
 # Create arrays to store the data. Try to collect as much as possible from the
 # website, and see what fits into the SQL schema
 descriptions = []
@@ -13,6 +13,12 @@ locations = []
 categories = []
 ad_type = []
 listing_number = []
+# Connecting to SQL server
+conn = pyodbc.connect('Driver={SQL Server};'
+                      'Server=US-NYC-NL000860\SQLEXPRESS;'
+                      'Database=Opportunity Hunter;'
+                      'Trusted_Connection=yes;')
+cursor = conn.cursor()
 # Keeping track of the page we are scraping
 pageNumber = 1
 # 1 and 50 are the pages we want to start at. str() casts these as strings
@@ -64,8 +70,14 @@ print(len(categories))
 for num in range(0, len(categories)):
     print(listing_number[num])
     print(descriptions[num])
+    cursor.execute('INSERT into NYSCRpythonCleaned (jobDescription) VALUES (\''
+        + descriptions[num].replace('\'','\'\'') + '\')')
+    conn.commit()
     print(agencies[num])
     print(issue_dates[num])
+    cursor.execute('INSERT into NYSCRpythonCleaned (issueDateTest) VALUES (\''
+        + issue_dates[num] + '\')')
+    conn.commit()
     print(due_dates[num])
     print(locations[num])
     print(categories[num])
