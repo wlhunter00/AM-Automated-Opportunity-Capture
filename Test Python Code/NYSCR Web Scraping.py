@@ -31,10 +31,13 @@ for start in startNum:
     for container in job_containers:
         # Collecting the information from the container
         # Print statement as debug
-        # print(container.text)
+        print(container)
         # Insert text block plus URL into SQL table
+        # cursor.execute('INSERT into NYSCRuncleaned (BodyText, HTML) VALUES (\''
+        #        + container.text.replace('\'','\'\'') + ' URL:' + url + '\'),\''
+                # + container.prettify().replace('\'','\'\'') + '   URL:' + url + '\') ')
         cursor.execute('INSERT into NYSCRuncleaned (BodyText) VALUES (\''
-                + container.text.replace('\'','\'\'') + ' URL:' + url + '\')')
+                + container.prettify().replace('\'','\'\'') + '   URL:' + url + '\')')
         conn.commit()
     pageNumber += 1
     # 1 second delay to avoid overtaxing the server
