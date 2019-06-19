@@ -1,6 +1,7 @@
 # Important imports
 import requests
 import time
+from datetime import datetime
 from bs4 import BeautifulSoup
 import pyodbc
 # Create arrays to store the data. Try to collect as much as possible from the
@@ -70,13 +71,19 @@ print(len(categories))
 for num in range(0, len(categories)):
     print(listing_number[num])
     print(descriptions[num])
-    cursor.execute('INSERT into NYSCRpythonCleaned (jobDescription) VALUES (\''
-        + descriptions[num].replace('\'','\'\'') + '\')')
+    cursor.execute('INSERT into NYSCRpythonCleaned (jobDescription, company, jobLocation, category, adType, jobURL, dueDate, issueDate, dateInserted) VALUES (\''
+        + descriptions[num].replace('\'','\'\'') + '\', \''
+            + agencies[num].replace('\'','\'\'') + '\', \''
+               + locations[num].replace('\'','\'\'') + '\', \''
+                  + categories[num].replace('\'','\'\'') + '\', \''
+                     + ad_type[num].replace('\'','\'\'') + '\', \''
+                        + url.replace('\'','\'\'') + '\', \''
+                           + due_dates[num].replace('\'','\'\'') + '\', \''
+                              + issue_dates[num].replace('\'','\'\'') + '\', \''
+                                 + datetime.now().strftime('%Y-%m-%d %H:%M:%S').replace('\'','\'\'') + '\')')
     conn.commit()
     print(agencies[num])
     print(issue_dates[num])
-    cursor.execute('INSERT into NYSCRpythonCleaned (issueDateTest) VALUES (\''
-        + issue_dates[num] + '\')')
     conn.commit()
     print(due_dates[num])
     print(locations[num])

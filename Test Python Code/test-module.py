@@ -1,5 +1,7 @@
 import math
+import datetime
 
+print(datetime.datetime.now().strftime("%b %d %Y - %H:%M:%S.%f"))
 z = 10
 
 pop = "this is a string"
