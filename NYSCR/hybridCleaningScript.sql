@@ -6,7 +6,7 @@ update NYSCRhybrid set labelText = 'Company:' where labelText like '%Agency%';
 
 select jobID, resultText, right(labelText,36) from NYSCRhybrid;
 
---truncate table nyscrhybrid;
+truncate table nyscrhybrid;
 
 select distinct labelText from NYSCRhybrid;
 
@@ -19,3 +19,6 @@ FROM    (   SELECT A.jobID, resultText,  labelText
             FOR labeltext in ([Title:], [Company:], [Category:], [dateInserted:], [Due Date:], [Issue Date:], [Location:], [URL:], [Ad Type:])
         ) AS  PVT
 
+select max(jobID) from NYSCRhybrid;
+
+select * from NYSCRhybrid;
