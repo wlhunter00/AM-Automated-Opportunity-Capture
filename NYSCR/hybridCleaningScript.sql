@@ -10,8 +10,8 @@ truncate table nyscrhybrid;
 
 select distinct labelText from NYSCRhybrid;
 
-SELECT jobID, [Title:], [Company:], [Category:], [dateInserted:], [Due Date:], [Issue Date:], [Location:], [URL:], [Ad Type:] 
-FROM    (   SELECT A.jobID, resultText,  labelText
+SELECT jobID, Website, [Title:], [Company:], [Category:], [dateInserted:], [Due Date:], [Issue Date:], [Location:], [URL:], [Ad Type:] 
+FROM    (   SELECT A.jobID, resultText,  labelText, Website
             FROM NYSCRhybrid A 
         ) AS P
         PIVOT 
