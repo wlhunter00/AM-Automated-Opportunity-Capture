@@ -6,8 +6,8 @@ from bs4 import BeautifulSoup
 import pyodbc
 # Connecting to SQL server
 conn = pyodbc.connect('Driver={SQL Server};'
-                      'Server=US-NYC-NL000860\SQLEXPRESS;'
-                      'Database=Opportunity Hunter;'
+                      'Server=jackson;'
+                      'Database=OppHunter;'
                       'Trusted_Connection=yes;')
 cursor = conn.cursor()
 
@@ -27,7 +27,6 @@ def calculatePageNumber(numberOfPages, jobsPerPage):
     for num in range(0, numberOfPages-1):
         runningCounter += jobsPerPage
         startNum.append(str(runningCounter))
-    print(startNum)
     return startNum
 
 
