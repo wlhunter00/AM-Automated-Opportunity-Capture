@@ -1,4 +1,3 @@
-# Test to see if GitHub works
 # Important imports
 import requests
 import time
