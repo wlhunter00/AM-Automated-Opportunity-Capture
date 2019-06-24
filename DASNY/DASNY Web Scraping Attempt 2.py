@@ -28,13 +28,14 @@ def calculatePageNumber(numberOfPages, jobsPerPage, site):
         for num in range(0, numberOfPages-1):
             runningCounter += jobsPerPage
             startNum.append(str(runningCounter))
-    elif(site == 'NYSCR'):
+        return startNum
+    elif(site == 'DASNY'):
         runningCounter = 0
         startNum = [str(0)]
         for num in range(0, numberOfPages-1):
-            runningCounter += jobsPerPage
+            runningCounter += 1
             startNum.append(str(runningCounter))
-    return startNum
+        return startNum
 
 
 # You pass in the name of the table you want to analyze. The function will then
@@ -60,8 +61,8 @@ def findLastJob(tableName):
 def getURL(site, startingNumber):
     if(site == 'NYSCR'):
         urlFromFunction = 'https://www.nyscr.ny.gov/adsOpen.cfm?startnum=' + startingNumber + '&orderBy=55&numPer=50&myAdsOnly=2&adClass=b&adCat=&adCounty=&adType=&mbe=0&wbe=0&dbe=0&keyword='
-elif(site == 'DASNY'):
-    urlFromFunction = 'https://www.dasny.org/opportunities/rfps-bids?field_solicitation_classificatio_target_id=All&field_solicitation_type_target_id=All&field_goals_target_id=All&field_set_aside_target_id=All&query=&page=' + startingNumber
+    elif(site == 'DASNY'):
+        urlFromFunction = 'https://www.dasny.org/opportunities/rfps-bids?field_solicitation_classificatio_target_id=All&field_solicitation_type_target_id=All&field_goals_target_id=All&field_set_aside_target_id=All&query=&page=' + startingNumber
     return urlFromFunction
 
 
@@ -94,19 +95,34 @@ def searchAndUpload(container, labelHTML, resultHMTL, labelDef, resultDef,
                        + container_results[num].text.replace('\'', '\'\'') + '\',  \''
                        + site + '\')')
         conn.commit()
-    # cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
-    #                + str(jobNumber).replace('\'', '\'\'') + '\', \''
-    #                + 'URL:' + '\',  \''
-    #                + getURL('NYSCR', pageNumber).replace('\'', '\'\'') + '\',  \''
-    #                + site + '\')')
-    # conn.commit()
+    if(site == 'NYSCR'):
+        cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
+                       + str(jobNumber).replace('\'', '\'\'') + '\', \''
+                       + 'URL:' + '\',  \''
+                       + getURL(site, pageNumber).replace('\'', '\'\'') + '\',  \''
+                       + site + '\')')
+        conn.commit()
+    elif(site == 'DASNY'):
+        title = container.find('div', class_='rfp-bid-title')
+        link = 'https://www.dasny.org' + title.find('a')['href']
+        cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
+                       + str(jobNumber).replace('\'', '\'\'') + '\', \''
+                       + 'URL:' + '\',  \''
+                       + link.replace('\'', '\'\'') + '\',  \''
+                       + site + '\')')
+        conn.commit()
+        cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
+                       + str(jobNumber).replace('\'', '\'\'') + '\', \''
+                       + 'Title:' + '\',  \''
+                       + title.text.replace('\'', '\'\'') + '\',  \''
+                       + site + '\')')
+        conn.commit()
     cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
                    + str(jobNumber).replace('\'', '\'\'') + '\', \''
                    + 'dateInserted:' + '\',  \''
                    + datetime.now().strftime('%Y-%m-%d %H:%M:%S').replace('\'', '\'\'') + '\',  \''
                    + site + '\')')
     conn.commit()
-
 
 # The function that does all the work. Site is the specific site to analyze,
 # database is the database you want to insert into, labelHTML, resultHTML, and
@@ -140,8 +156,8 @@ def scrapeSite(site, database, labelHTML, resultHMTL, labelDef, resultDef,
         time.sleep(1)
 
 
-# scrapeSite('NYSCR', 'NYSCRhybrid', 'div', 'div', "labelText", "resultText",
-           # 'tr', 'r1', 2, 50)
+scrapeSite('NYSCR', 'NYSCRhybrid', 'div', 'div', "labelText", "resultText",
+           'tr', 'r1', 2, 50)
 
 scrapeSite('DASNY', 'DASNYhybrid', 'td', 'td', '', 'fieldValue',
-           'div', 'views-row', 2, 10)
+           'div', 'views-field views-field-nothing-1', 2, 10)
