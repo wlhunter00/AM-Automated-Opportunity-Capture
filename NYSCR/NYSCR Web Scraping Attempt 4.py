@@ -89,7 +89,7 @@ def searchAndUpload(container, labelHTML, resultHMTL, labelDef, resultDef,
     cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
                    + str(jobNumber).replace('\'', '\'\'') + '\', \''
                    + 'URL:' + '\',  \''
-                   + getURL('NYSCR', pageNumber).replace('\'', '\'\'') + '\',  \''
+                   + getURL(site, pageNumber).replace('\'', '\'\'') + '\',  \''
                    + site + '\')')
     conn.commit()
     cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''

@@ -16,9 +16,9 @@ containers = soup.findAll('div', class_='views-row')
 # print(containers[1])
 
 # Title (url is in here too)
-title = containers[1].findAll('div', class_='rfp-bid-title')
-link = 'https://www.dasny.org' + title[0].find('a')['href']
-print(link)
+title = containers[1].find('div', class_='rfp-bid-title')
+link = 'https://www.dasny.org' + title.find('a')['href']
+print(title.text)
 
 result = containers[1].findAll('td', class_='fieldValue')
 label = containers[1].findAll('td', class_='')
