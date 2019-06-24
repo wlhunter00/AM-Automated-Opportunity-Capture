@@ -156,8 +156,8 @@ def scrapeSite(site, database, labelHTML, resultHMTL, labelDef, resultDef,
         time.sleep(1)
 
 
-# scrapeSite('NYSCR', 'NYSCRhybrid', 'div', 'div', "labelText", "resultText",
-           # 'tr', 'r1', 2, 50)
+scrapeSite('NYSCR', 'NYSCRhybrid', 'div', 'div', "labelText", "resultText",
+           'tr', 'r1', 2, 50)
 
 scrapeSite('DASNY', 'DASNYhybrid', 'td', 'td', '', 'fieldValue',
            'div', 'views-field views-field-nothing-1', 2, 10)
