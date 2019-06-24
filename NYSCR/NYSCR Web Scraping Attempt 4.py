@@ -106,7 +106,7 @@ def searchAndUpload(container, labelHTML, resultHMTL, labelDef, resultDef,
 def scrapeSite(site, database, labelHTML, resultHMTL, labelDef, resultDef,
                containerHTML, containerDef, numberOfPages, jobsPerPage):
     # Optional, clear the database
-    truncateSQL(database)
+    # truncateSQL(database)
     # Finds last job number in database and adds one
     jobNumber = findLastJob(database)+1
     # Start num is an array of page numbers
