@@ -1,24 +1,30 @@
-select * from NYSCRhybrid order by jobid;
+select * from NYSCR_raw order by jobid;
 
-update NYSCRhybrid set labelText = 'Due Date:' where labelText like '%Due%';
-update NYSCRhybrid set labelText = 'Due Date:' where labelText like '%End%';
-update NYSCRhybrid set labelText = 'Company:' where labelText like '%Agency%';
+update NYSCR_raw set labelText = 'Due Date:' where labelText like '%Due%';
+update NYSCR_raw set labelText = 'Due Date:' where labelText like '%End%';
+update NYSCR_raw set labelText = 'Company:' where labelText like '%Agency%';
 
-select jobID, resultText, right(labelText,36) from NYSCRhybrid;
+select jobID, resultText, right(labelText,36) from NYSCR_raw;
 
-truncate table nyscrhybrid;
+truncate table NYSCR_raw;
 
-select distinct labelText from NYSCRhybrid;
+select distinct labelText from NYSCR_raw;
 
+truncate table NYSCR_pvt;
+
+insert into NYSCR_pvt
 SELECT jobID, Website, [Title:], [Company:], [Category:], [dateInserted:], [Due Date:], [Issue Date:], [Location:], [URL:], [Ad Type:] 
 FROM    (   SELECT A.jobID, resultText,  labelText, Website
-            FROM NYSCRhybrid A 
+            FROM NYSCR_raw A 
         ) AS P
         PIVOT 
         (   MAX(resultText) 
             FOR labeltext in ([Title:], [Company:], [Category:], [dateInserted:], [Due Date:], [Issue Date:], [Location:], [URL:], [Ad Type:])
         ) AS  PVT
 
-select max(jobID) from NYSCRhybrid;
+select * from NYSCR_pvt;
 
-select * from NYSCRhybrid;
+
+select max(jobID) from NYSCR_raw;
+
+select * from NYSCR_raw;

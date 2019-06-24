@@ -18,6 +18,13 @@ def truncateSQL(tableName):
     cursor.execute('truncate table ' + tableName)
 
 
+def cleanRawSQL(site):
+    if(site == 'NYSCR'):
+        cursor.execute("update NYSCR_raw set labelText = 'Due Date:' where labelText like '%Due%'")
+        cursor.execute("update NYSCR_raw set labelText = 'Due Date:' where labelText like '%End%'")
+        cursor.execute("update NYSCR_raw set labelText = 'Company:' where labelText like '%Agency%'")
+
+
 # Pass in the number of pages you want to scrape and the amount of jobs you
 # want to scrape. Returns an array of strings that will be passed through the
 # url generator so that many pages can be scraped.
@@ -79,6 +86,10 @@ def getContainers(site, startingNumber, HTMLobject, className):
     return soup.findAll(HTMLobject, class_=className)
 
 
+def getDatabase(site):
+    return [site + '_raw', site + '_pvt']
+
+
 # This hopefully works with many sites. Takes inputs, finds the items we want
 # to import, and then uploads it to the SQL server. Container is found through
 # getContainers(), labelHTML and resultHTML are the tag that they are
@@ -128,12 +139,13 @@ def searchAndUpload(container, labelHTML, resultHMTL, labelDef, resultDef,
 # database is the database you want to insert into, labelHTML, resultHTML, and
 # containerHTML are the kind of HTML element these objects are, their defs are
 # the classes of the HTML eleemnts. Number of pages and jobsPerPage are easy
-def scrapeSite(site, database, labelHTML, resultHMTL, labelDef, resultDef,
+def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
                containerHTML, containerDef, numberOfPages, jobsPerPage):
     # Optional, clear the database
-    truncateSQL(database)
+    databases = getDatabase(site)
+    truncateSQL(databases[0])
     # Finds last job number in database and adds one
-    jobNumber = findLastJob(database)+1
+    jobNumber = findLastJob(databases[0])+1
     # Start num is an array of page numbers
     startNum = calculatePageNumber(numberOfPages, jobsPerPage, site)
     # For loop that goes through the array. Basically allows us to run multiple
@@ -149,15 +161,14 @@ def scrapeSite(site, database, labelHTML, resultHMTL, labelDef, resultDef,
             # Collecting the information from the container and inserting it
             # into the SQL server
             searchAndUpload(container, labelHTML, resultHMTL, labelDef,
-                            resultDef, database, jobNumber, start, site)
+                            resultDef, databases[0], jobNumber, start, site)
             # Incrase jobNumber as that is what is inserted into database
             jobNumber += 1
         # 1 second delay to avoid overtaxing the server
         time.sleep(1)
+    cleanRawSQL(site)
 
-
-scrapeSite('NYSCR', 'NYSCRhybrid', 'div', 'div', "labelText", "resultText",
+scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
            'tr', 'r1', 2, 50)
-
-scrapeSite('DASNY', 'DASNYhybrid', 'td', 'td', '', 'fieldValue',
+scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
            'div', 'views-field views-field-nothing-1', 2, 10)
