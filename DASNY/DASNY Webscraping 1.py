@@ -12,13 +12,13 @@ response = requests.get(url)
 
 soup = BeautifulSoup(response.text, "html.parser")
 containers = soup.findAll('div', class_='views-row')
-# print(soup.prettify)
+print(soup.prettify)
 # print(containers[1])
 
 # Title (url is in here too)
 title = containers[1].findAll('div', class_='rfp-bid-title')
 link = 'https://www.dasny.org' + title[0].find('a')['href']
-print(link)
+# print(link)
 
 result = containers[1].findAll('td', class_='fieldValue')
 label = containers[1].findAll('td', class_='')
