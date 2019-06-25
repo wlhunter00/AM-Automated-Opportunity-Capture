@@ -20,9 +20,14 @@ def truncateSQL(tableName):
 
 def cleanRawSQL(site):
     if(site == 'NYSCR'):
+        cursor.execute("select * from NYSCR_raw where labelText like '%Due%'")
         cursor.execute("update NYSCR_raw set labelText = 'Due Date:' where labelText like '%Due%'")
         cursor.execute("update NYSCR_raw set labelText = 'Due Date:' where labelText like '%End%'")
         cursor.execute("update NYSCR_raw set labelText = 'Company:' where labelText like '%Agency%'")
+        conn.commit()
+    elif(site == 'DASNY'):
+        cursor.execute("update DASNY_raw set resultText = substring(resultText, 0, CHARINDEX(' ', resultText)) where labelText like '%Due%'")
+        conn.commit()
 
 
 # Pass in the number of pages you want to scrape and the amount of jobs you
@@ -131,7 +136,7 @@ def searchAndUpload(container, labelHTML, resultHMTL, labelDef, resultDef,
     cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
                    + str(jobNumber).replace('\'', '\'\'') + '\', \''
                    + 'dateInserted:' + '\',  \''
-                   + datetime.now().strftime('%Y-%m-%d %H:%M:%S').replace('\'', '\'\'') + '\',  \''
+                   + datetime.now().strftime('%m/%d/%Y %H:%M:%S').replace('\'', '\'\'') + '\',  \''
                    + site + '\')')
     conn.commit()
 
@@ -168,7 +173,10 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
         time.sleep(1)
     cleanRawSQL(site)
 
+
 scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
            'tr', 'r1', 2, 50)
 scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
            'div', 'views-field views-field-nothing-1', 2, 10)
+cursor.close()
+conn.close()

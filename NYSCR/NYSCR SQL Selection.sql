@@ -25,6 +25,7 @@ FROM    (   SELECT A.jobID, resultText,  labelText, Website
 select * from NYSCR_pvt;
 
 
+
 select max(jobID) from NYSCR_raw;
 
 select * from NYSCR_raw;
