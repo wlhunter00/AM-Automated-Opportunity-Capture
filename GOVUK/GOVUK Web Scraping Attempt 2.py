@@ -40,14 +40,19 @@ def calculatePageNumber(numberOfPages, jobsPerPage, site):
         for num in range(0, numberOfPages-1):
             runningCounter += jobsPerPage
             startNum.append(str(runningCounter))
-        return startNum
     elif(site == 'DASNY'):
         runningCounter = 0
         startNum = [str(0)]
         for num in range(0, numberOfPages-1):
             runningCounter += 1
             startNum.append(str(runningCounter))
-        return startNum
+    elif(site == 'GOVUK'):
+        runningCounter = 1
+        startNum = [str(1)]
+        for num in range(0, numberOfPages-1):
+            runningCounter += 1
+            startNum.append(str(runningCounter))
+    return startNum
 
 
 # You pass in the name of the table you want to analyze. The function will then
