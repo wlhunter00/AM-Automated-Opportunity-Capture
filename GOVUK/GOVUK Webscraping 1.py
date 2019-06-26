@@ -18,10 +18,14 @@ containers = soup.findAll('div', class_='search-result')
 # print(soup.prettify)
 # print(containers[1])
 
-# # Title (url is in here too)
-# title = containers[1].find('div', class_='rfp-bid-title')
-# link = 'https://www.dasny.org' + title.find('a')['href']
-# print(title.text)
+# Title (url is in here too)
+title = containers[1].find('div', class_='search-result-header')
+link = title.find('a')['href']
+print(title.text)
+print(link)
+
+company = containers[1].find('div', class_='search-result-sub-header wrap-text')
+
 label = []
 result = []
 # result = containers[1].findAll('strong', class_='fieldValue')
