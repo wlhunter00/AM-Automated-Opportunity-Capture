@@ -80,6 +80,8 @@ def getURL(site, startingNumber):
         urlFromFunction = 'https://www.nyscr.ny.gov/adsOpen.cfm?startnum=' + startingNumber + '&orderBy=55&numPer=50&myAdsOnly=2&adClass=b&adCat=&adCounty=&adType=&mbe=0&wbe=0&dbe=0&keyword='
     elif(site == 'DASNY'):
         urlFromFunction = 'https://www.dasny.org/opportunities/rfps-bids?field_solicitation_classificatio_target_id=All&field_solicitation_type_target_id=All&field_goals_target_id=All&field_set_aside_target_id=All&query=&page=' + startingNumber
+    elif(site == 'GOVUK'):
+        urlFromFunction = 'https://www.contractsfinder.service.gov.uk/Search/Results?&page='+ startingNumber + '#dashboard_notices'
     return urlFromFunction
 
 
@@ -108,14 +110,23 @@ def getDatabase(site):
 def searchAndUpload(container, labelHTML, resultHMTL, labelDef, resultDef,
                     databaseName, jobNumber, pageNumber, site):
     container_labels = container.findAll(labelHTML, class_=labelDef)
-    container_results = container.findAll(resultHMTL, class_=resultDef)
+    if(site != 'GOVUK'):
+        container_results = container.findAll(resultHMTL, class_=resultDef)
     for num in range(0, len(container_labels)):
-        cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
-                       + str(jobNumber).replace('\'', '\'\'') + '\', \''
-                       + container_labels[num].text.replace('\'', '\'\'') + '\',  \''
-                       + container_results[num].text.replace('\'', '\'\'') + '\',  \''
-                       + site + '\')')
-        conn.commit()
+        if(site != 'GOVUK'):
+            cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
+                           + str(jobNumber).replace('\'', '\'\'') + '\', \''
+                           + container_labels[num].text.replace('\'', '\'\'') + '\',  \''
+                           + container_results[num].text.replace('\'', '\'\'') + '\',  \''
+                           + site + '\')')
+            conn.commit()
+        else:
+            cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
+                           + str(jobNumber).replace('\'', '\'\'') + '\', \''
+                           + container_labels[num].text.replace('\'', '\'\'') + '\',  \''
+                           + container_labels[num].next_sibling.replace('\'', '\'\'') + '\',  \''
+                           + site + '\')')
+            conn.commit()
     if(site == 'NYSCR'):
         cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
                        + str(jobNumber).replace('\'', '\'\'') + '\', \''
@@ -126,6 +137,17 @@ def searchAndUpload(container, labelHTML, resultHMTL, labelDef, resultDef,
     elif(site == 'DASNY'):
         title = container.find('div', class_='rfp-bid-title')
         link = 'https://www.dasny.org' + title.find('a')['href']
+    elif(site == 'GOVUK'):
+        title = container.find('div', class_='search-result-header')
+        link = title.find('a')['href']
+        company = container.find('div', class_='search-result-sub-header wrap-text')
+        cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
+                       + str(jobNumber).replace('\'', '\'\'') + '\', \''
+                       + 'Company:' + '\',  \''
+                       + company.text.replace('\'', '\'\'') + '\',  \''
+                       + site + '\')')
+        conn.commit()
+    if(site == 'DASNY' or site == 'GOVUK'):
         cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
                        + str(jobNumber).replace('\'', '\'\'') + '\', \''
                        + 'URL:' + '\',  \''
@@ -144,6 +166,7 @@ def searchAndUpload(container, labelHTML, resultHMTL, labelDef, resultDef,
                    + datetime.now().strftime('%m/%d/%Y %H:%M:%S').replace('\'', '\'\'') + '\',  \''
                    + site + '\')')
     conn.commit()
+
 
 # The function that does all the work. Site is the specific site to analyze,
 # database is the database you want to insert into, labelHTML, resultHTML, and
@@ -183,5 +206,7 @@ scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
            'tr', 'r1', 2, 50)
 scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
            'div', 'views-field views-field-nothing-1', 2, 10)
+scrapeSite('GOVUK', 'div', '', 'search-result-entry', '',
+           'div', 'search-result-sub-header wrap-text', 50, 20)
 cursor.close()
 conn.close()
