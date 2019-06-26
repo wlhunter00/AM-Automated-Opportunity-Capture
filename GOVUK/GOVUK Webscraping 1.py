@@ -21,16 +21,20 @@ containers = soup.findAll('div', class_='search-result')
 # Title (url is in here too)
 title = containers[1].find('div', class_='search-result-header')
 link = title.find('a')['href']
-print(title.text)
-print(link)
+# print(title.text)
+# print(link)
 
 company = containers[1].find('div', class_='search-result-sub-header wrap-text')
 
 label = []
 result = []
 # result = containers[1].findAll('strong', class_='fieldValue')
-test = containers[1].findAll('div', class_='search-result-entry')
+test = containers[0].findAll('div', class_='search-result-entry')
+print(test[0])
 for yeet in test:
     label.append(yeet.find('strong', class_='').text)
+    print(yeet.find('strong', class_='').text)
     result.append(yeet.find('strong', class_='').next_sibling)
-print(label[1], result[1])
+    print(yeet.find('strong', class_='').next_sibling)
+# print(label[0])
+# print(result[0])

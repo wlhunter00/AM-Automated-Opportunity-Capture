@@ -21,12 +21,14 @@ def truncateSQL(tableName):
 def cleanRawSQL(site):
     if(site == 'NYSCR'):
         cursor.execute("select * from NYSCR_raw where labelText like '%Due%'")
-        cursor.execute("update NYSCR_raw set labelText = 'Due Date:' where labelText like '%Due%'")
-        cursor.execute("update NYSCR_raw set labelText = 'Due Date:' where labelText like '%End%'")
+        cursor.execute("update NYSCR_raw set labelText = 'Due Date:' where labelText like '%Due%' or labelText like '%End%'")
         cursor.execute("update NYSCR_raw set labelText = 'Company:' where labelText like '%Agency%'")
         conn.commit()
     elif(site == 'DASNY'):
         cursor.execute("update DASNY_raw set resultText = substring(resultText, 0, CHARINDEX(' ', resultText)) where labelText like '%Due%'")
+        conn.commit()
+    elif(site == 'GOVUK'):
+        cursor.execute("update GOVUK_raw set [resultText] = substring([resultText], 5, 2) + '/' + substring([resultText], 2, 2) + '/' + substring([resultText], 8, 4) where [labelText] like '%Closing%' or [labelText] like '%Publication%';")
         conn.commit()
 
 
@@ -101,30 +103,42 @@ def getContainers(site, startingNumber, HTMLobject, className):
 def getDatabase(site):
     return [site + '_raw', site + '_pvt']
 
+def getScrapingCase(site):
+    if(site == 'NYSCR' or site == 'DASNY'):
+        return 'TwoTags'
+    elif(site == 'GOVUK'):
+        return 'OneTag'
+
+def getURLCase(site):
+    if(site == 'NYSCR'):
+        return 'noURL'
+    elif(site == 'DASNY' or site == 'GOVUK'):
+        return 'seperateURL'
+
 
 # This hopefully works with many sites. Takes inputs, finds the items we want
 # to import, and then uploads it to the SQL server. Container is found through
 # getContainers(), labelHTML and resultHTML are the tag that they are
 # classified as, there def's are the class name, databasename is the database
 # that you want to insert into, pageNumber and site are self explanatory.
-def searchAndUpload(container, labelHTML, resultHMTL, labelDef, resultDef,
+def searchAndUpload(container, labelHTML, resultHTML, labelDef, resultDef,
                     databaseName, jobNumber, pageNumber, site):
     container_labels = container.findAll(labelHTML, class_=labelDef)
-    if(site != 'GOVUK'):
-        container_results = container.findAll(resultHMTL, class_=resultDef)
+    if(getScrapingCase(site) == 'TwoTags'):
+        container_results = container.findAll(resultHTML, class_=resultDef)
     for num in range(0, len(container_labels)):
-        if(site != 'GOVUK'):
+        if(getScrapingCase(site) == 'TwoTags'):
             cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
                            + str(jobNumber).replace('\'', '\'\'') + '\', \''
                            + container_labels[num].text.replace('\'', '\'\'') + '\',  \''
                            + container_results[num].text.replace('\'', '\'\'') + '\',  \''
                            + site + '\')')
             conn.commit()
-        else:
+        elif(getScrapingCase(site) == 'OneTag'):
             cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
                            + str(jobNumber).replace('\'', '\'\'') + '\', \''
-                           + container_labels[num].text.replace('\'', '\'\'') + '\',  \''
-                           + container_labels[num].next_sibling.replace('\'', '\'\'') + '\',  \''
+                           + container_labels[num].find(resultHTML, class_=resultDef).text.replace('\'', '\'\'') + '\',  \''
+                           + container_labels[num].find(resultHTML, class_=resultDef).next_sibling.replace('\'', '\'\'') + '\',  \''
                            + site + '\')')
             conn.commit()
     if(site == 'NYSCR'):
@@ -147,7 +161,14 @@ def searchAndUpload(container, labelHTML, resultHMTL, labelDef, resultDef,
                        + company.text.replace('\'', '\'\'') + '\',  \''
                        + site + '\')')
         conn.commit()
-    if(site == 'DASNY' or site == 'GOVUK'):
+        if(container.find('span', class_='') is not None):
+            cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
+                           + str(jobNumber).replace('\'', '\'\'') + '\', \''
+                           + 'Description:' + '\',  \''
+                           + container.find('span', class_='').text.replace('\'', '\'\'') + '\',  \''
+                           + site + '\')')
+            conn.commit()
+    if(getURLCase(site) == 'seperateURL'):
         cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
                        + str(jobNumber).replace('\'', '\'\'') + '\', \''
                        + 'URL:' + '\',  \''
@@ -198,15 +219,15 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
             # Incrase jobNumber as that is what is inserted into database
             jobNumber += 1
         # 1 second delay to avoid overtaxing the server
-        time.sleep(1)
+        time.sleep(.5)
     cleanRawSQL(site)
 
-
-scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
-           'tr', 'r1', 2, 50)
-scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
-           'div', 'views-field views-field-nothing-1', 2, 10)
-scrapeSite('GOVUK', 'div', '', 'search-result-entry', '',
-           'div', 'search-result-sub-header wrap-text', 50, 20)
+#
+# scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
+#            'tr', 'r1', 2, 50)
+# scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
+#            'div', 'views-field views-field-nothing-1', 2, 10)
+scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
+           'div', 'search-result', 50, 20)
 cursor.close()
 conn.close()
