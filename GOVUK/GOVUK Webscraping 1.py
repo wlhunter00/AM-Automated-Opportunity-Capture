@@ -38,7 +38,10 @@ for yeet in test:
     label.append(yeet.find('strong', class_='').text)
     print(yeet.find('strong', class_='').text)
     result.append(yeet.find('strong', class_='').next_sibling)
+<<<<<<< HEAD
     print(yeet.find('strong', class_='').next_sibling)
 # print(label[0])
 # print(result[0])
+=======
 # print(label[1], result[1])
+>>>>>>> 8938cf4d645c4eac07f3fcd33fef335c4d5f33ac

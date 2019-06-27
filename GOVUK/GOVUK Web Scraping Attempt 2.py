@@ -218,16 +218,17 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
                             resultDef, databases[0], jobNumber, start, site)
             # Incrase jobNumber as that is what is inserted into database
             jobNumber += 1
-        # 1 second delay to avoid overtaxing the server
-        time.sleep(.5)
+        print('Scraped: ' + site + " - Page " + start)
     cleanRawSQL(site)
+    print(site + ' Completed')
 
-#
-# scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
-#            'tr', 'r1', 2, 50)
-# scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
-#            'div', 'views-field views-field-nothing-1', 2, 10)
+
+scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
+           'tr', 'r1', 2, 50)
+scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
+           'div', 'views-field views-field-nothing-1', 2, 10)
 scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
            'div', 'search-result', 50, 20)
 cursor.close()
 conn.close()
+print('All sites scraped')

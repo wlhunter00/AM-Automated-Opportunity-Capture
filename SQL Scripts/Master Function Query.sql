@@ -42,25 +42,28 @@ select [Title:], [Website], cast([Due Date:] as datetime), cast(replace(replace(
 from DASNY_pvt
 WHERE DASNY_pvt.[Title:] not in(select JobDescription from master_table);
 
---insert into master_table(JobDescription, Website, Company, DueDate, IssueDate, InsertDate, RequestType, JobURL, JobLocation, Category)
---select [Title:], [Website], [Company:], cast([Due Date:] as datetime), cast([Issue Date:] as datetime), cast([dateInserted:] as datetime), [Ad Type:], [URL:], [Category:], [Location:] 
---from NYSCR_pvt
---WHERE NYSCR_pvt.[Title:] not in(select JobDescription from master_table);;
+insert into master_table(JobDescription, Website, Company, DueDate, IssueDate, InsertDate, RequestType, JobURL, JobLocation, Category)
+select [Title:], [Website], [Company:], cast([Due Date:] as datetime), cast([Issue Date:] as datetime), cast([dateInserted:] as datetime), [Ad Type:], [URL:], [Category:], [Location:] 
+from NYSCR_pvt
+WHERE NYSCR_pvt.[Title:] not in(select JobDescription from master_table);
 
 insert into master_table(JobDescription, Website, Company, DueDate, IssueDate, InsertDate, RequestType, JobURL, JobLocation, LongDescription, MaxValue)
 select [Title:], [Website], [Company:], cast([Closing date] as datetime), cast([Publication date] as datetime), cast([dateInserted:] as datetime), [Notice Type], [URL:], [Contract location], [Description:], [Contract value (high)]
 from GOVUK_pvt
-WHERE GOVUK_pvt.[Title:] not in(select JobDescription from master_table);;
+WHERE GOVUK_pvt.[Title:] not in(select JobDescription from master_table);
 
 
 delete from current_table where DueDate < getdate();
 update current_table set Status = 'Old';
 
-INSERT INTO current_table (JobDescription, Website, Company, DueDate, IssueDate, InsertDate, RequestType, JobURL, JobLocation, Category, Status)
-SELECT JobDescription, Website, Company, DueDate, IssueDate, InsertDate, RequestType, JobURL, JobLocation, Category, 'New'
+delete from master_table where jobID not in(
+select max(jobID) from master_table group by JobDescription);
+
+INSERT INTO current_table (JobDescription, Website, Company, DueDate, IssueDate, InsertDate, RequestType, JobURL, JobLocation, Category, Status, masterJobId)
+SELECT distinct JobDescription, Website, Company, DueDate, IssueDate, InsertDate, RequestType, JobURL, JobLocation, Category, 'New', master_table.JobID
 FROM master_table
 WHERE master_table.JobDescription not in(select JobDescription from current_table) and master_table.DueDate > GETDATE();
 
-select * from current_table;
+--select * from current_table where status = 'new';
 
-select * from master_table where JobDescription like '%DGM%';
+select * from current_table order by jobID;
