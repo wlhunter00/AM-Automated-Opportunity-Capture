@@ -1,6 +1,4 @@
 import requests
-import urllib.request
-import time
 from bs4 import BeautifulSoup
 
 # 20 jobs per pages
@@ -14,33 +12,25 @@ response = requests.get(url)
 # Finding all of the hyperlink HTML tags
 
 soup = BeautifulSoup(response.text, "html.parser")
-containers = soup.findAll('li', class_='approved imported current soon schema')
-# print(soup.prettify)
-# print(containers[1])
 
-title = containers[1].find('a')
-link = containers[1].find('a')['href']
-description = containers[1].find('a')['itemprop']
-print(title.text)
-print(link)
-print(description)
-# Title (url is in here too)
-# title = containers[19].find('div', class_='search-result-header')
-# link = title.find('a')['href']
-# # print(title.text)
-# # print(link)
-#
-# description = containers[0].find('span', class_='')
-# print(description)
-#
-# company = containers[1].find('div', class_='search-result-sub-header wrap-text')
-#
-# label = []
-# result = []
-# # result = containers[1].findAll('strong', class_='fieldValue')
-# test = containers[0].findAll('div', class_='search-result-entry')
-# print(test[0])
-# for yeet in test:
-#     label.append(yeet.find('strong', class_='').text)
-#     print(yeet.find('strong', class_='').text)
-#     result.append(yeet.find('strong', class_='').next_sibling)
+containers = soup.select('li[itemtype="http://schema.org/CreativeWork/RequestForProposal"]')
+# print(containers[0])
+
+labels = []
+results = []
+labels.append(containers[0].find('a')['itemprop'])
+results.append('http://www.rfpdb.com'+containers[0].find('a')['href'])
+labels.append('title')
+results.append(containers[0].find('a').text)
+labels.append(containers[0].find('span', class_='comment')['itemprop'])
+results.append(containers[0].find('span', class_='comment').text)
+labels.append(containers[0].find('time')['itemprop'])
+results.append(containers[0].find('time')['datetime'])
+labels.append('Location')
+results.append(containers[0].select_one('span[itemprop="address"]').text)
+labels.append('Categories')
+results.append(containers[0].find('ul', class_='categories').text)
+
+
+for num in range(0, len(labels)):
+    print(labels[num] + ': ' + results[num])

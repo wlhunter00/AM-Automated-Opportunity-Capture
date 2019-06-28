@@ -11,6 +11,9 @@ conn = pyodbc.connect('Driver={SQL Server};'
                       'Trusted_Connection=yes;')
 cursor = conn.cursor()
 
+container_labels = []
+container_results = []
+
 
 # Function that will simply truncate the table through python
 # - mainly to make life easier
@@ -48,7 +51,7 @@ def calculatePageNumber(numberOfPages, jobsPerPage, site):
         for num in range(0, numberOfPages-1):
             runningCounter += 1
             startNum.append(str(runningCounter))
-    elif(site == 'GOVUK'):
+    elif(site == 'GOVUK' or site == 'RFPDB'):
         runningCounter = 1
         startNum = [str(1)]
         for num in range(0, numberOfPages-1):
@@ -84,6 +87,8 @@ def getURL(site, startingNumber):
         urlFromFunction = 'https://www.dasny.org/opportunities/rfps-bids?field_solicitation_classificatio_target_id=All&field_solicitation_type_target_id=All&field_goals_target_id=All&field_set_aside_target_id=All&query=&page=' + startingNumber
     elif(site == 'GOVUK'):
         urlFromFunction = 'https://www.contractsfinder.service.gov.uk/Search/Results?&page='+ startingNumber + '#dashboard_notices'
+    elif(site == 'RFPDB'):
+        urlFromFunction = 'http://www.rfpdb.com/view/category/name/technology/page/' + startingNumber
     return urlFromFunction
 
 
@@ -97,7 +102,10 @@ def getContainers(site, startingNumber, HTMLobject, className):
     # Just connecting to the website
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
-    return soup.findAll(HTMLobject, class_=className)
+    if(site == 'RFPDB'):
+        return soup.select('li[itemtype="http://schema.org/CreativeWork/RequestForProposal"]')
+    else:
+        return soup.findAll(HTMLobject, class_=className)
 
 
 def getDatabase(site):
@@ -108,12 +116,27 @@ def getScrapingCase(site):
         return 'TwoTags'
     elif(site == 'GOVUK'):
         return 'OneTag'
+    elif(site == 'RFPDB'):
+        return 'NoTags'
+
 
 def getURLCase(site):
     if(site == 'NYSCR'):
         return 'noURL'
-    elif(site == 'DASNY' or site == 'GOVUK'):
+    elif(site == 'DASNY' or site == 'GOVUK' or site == 'RFPDB'):
         return 'seperateURL'
+
+
+def listScrape(container, site):
+    if(site == 'RFPDB'):
+        container_labels.append(container.find('span', class_='comment')['itemprop'])
+        container_results.append(container.find('span', class_='comment').text)
+        container_labels.append(container.find('time')['itemprop'])
+        container_results.append(container.find('time')['datetime'])
+        container_labels.append('Location')
+        container_results.append(container.select_one('span[itemprop="address"]').text)
+        container_labels.append('Categories')
+        container_results.append(container.find('ul', class_='categories').text)
 
 
 # This hopefully works with many sites. Takes inputs, finds the items we want
@@ -123,34 +146,39 @@ def getURLCase(site):
 # that you want to insert into, pageNumber and site are self explanatory.
 def searchAndUpload(container, labelHTML, resultHTML, labelDef, resultDef,
                     databaseName, jobNumber, pageNumber, site):
-    container_labels = container.findAll(labelHTML, class_=labelDef)
-    if(getScrapingCase(site) == 'TwoTags'):
-        container_results = container.findAll(resultHTML, class_=resultDef)
-    for num in range(0, len(container_labels)):
+    if(getScrapingCase(site) != 'NoTags'):
+        container_labels = container.findAll(labelHTML, class_=labelDef)
         if(getScrapingCase(site) == 'TwoTags'):
-            cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
-                           + str(jobNumber).replace('\'', '\'\'') + '\', \''
-                           + container_labels[num].text.replace('\'', '\'\'') + '\',  \''
-                           + container_results[num].text.replace('\'', '\'\'') + '\',  \''
-                           + site + '\')')
-            conn.commit()
-        elif(getScrapingCase(site) == 'OneTag'):
+            container_results = container.findAll(resultHTML, class_=resultDef)
+
+    else:
+        listScrape(container, site)
+
+    for num in range(0, len(container_labels)):
+        if(getScrapingCase(site) == 'OneTag'):
             cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
                            + str(jobNumber).replace('\'', '\'\'') + '\', \''
                            + container_labels[num].find(resultHTML, class_=resultDef).text.replace('\'', '\'\'') + '\',  \''
                            + container_labels[num].find(resultHTML, class_=resultDef).next_sibling.replace('\'', '\'\'') + '\',  \''
                            + site + '\')')
             conn.commit()
-    if(site == 'NYSCR'):
-        cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
-                       + str(jobNumber).replace('\'', '\'\'') + '\', \''
-                       + 'URL:' + '\',  \''
-                       + getURL(site, pageNumber).replace('\'', '\'\'') + '\',  \''
-                       + site + '\')')
-        conn.commit()
-    elif(site == 'DASNY'):
+
+        else:
+            cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
+                           + str(jobNumber).replace('\'', '\'\'') + '\', \''
+                           + container_labels[num].text.replace('\'', '\'\'') + '\',  \''
+                           + container_results[num].text.replace('\'', '\'\'') + '\',  \''
+                           + site + '\')')
+            conn.commit()
+
+    if(site == 'DASNY'):
         title = container.find('div', class_='rfp-bid-title')
         link = 'https://www.dasny.org' + title.find('a')['href']
+
+    elif(site == 'RFPDB'):
+        title = container.find('a').text
+        link = 'http://www.rfpdb.com' + container.find('a')['href']
+
     elif(site == 'GOVUK'):
         title = container.find('div', class_='search-result-header')
         link = title.find('a')['href']
@@ -168,7 +196,16 @@ def searchAndUpload(container, labelHTML, resultHTML, labelDef, resultDef,
                            + container.find('span', class_='').text.replace('\'', '\'\'') + '\',  \''
                            + site + '\')')
             conn.commit()
-    if(getURLCase(site) == 'seperateURL'):
+
+    if(getURLCase(site) == 'noURL'):
+        cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
+                       + str(jobNumber).replace('\'', '\'\'') + '\', \''
+                       + 'URL:' + '\',  \''
+                       + getURL(site, pageNumber).replace('\'', '\'\'') + '\',  \''
+                       + site + '\')')
+        conn.commit()
+
+    elif(getURLCase(site) == 'seperateURL'):
         cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
                        + str(jobNumber).replace('\'', '\'\'') + '\', \''
                        + 'URL:' + '\',  \''
@@ -181,6 +218,7 @@ def searchAndUpload(container, labelHTML, resultHTML, labelDef, resultDef,
                        + title.text.replace('\'', '\'\'') + '\',  \''
                        + site + '\')')
         conn.commit()
+
     cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
                    + str(jobNumber).replace('\'', '\'\'') + '\', \''
                    + 'dateInserted:' + '\',  \''
@@ -223,12 +261,14 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
     print(site + ' Completed')
 
 
-scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
-           'tr', 'r1', 2, 50)
-scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
-           'div', 'views-field views-field-nothing-1', 2, 10)
-scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
-           'div', 'search-result', 50, 20)
+# scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
+#            'tr', 'r1', 2, 50)
+# scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
+#            'div', 'views-field views-field-nothing-1', 2, 10)
+# scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
+#            'div', 'search-result', 50, 20)
+scrapeSite('RFPDB', '', '', '', '',
+           '', '', 20, 12)
 cursor.close()
 conn.close()
 print('All sites scraped')
