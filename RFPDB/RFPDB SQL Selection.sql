@@ -1,43 +1,32 @@
+create table RFPDB_raw (jobID int, labelText nvarchar(max), resultText nvarchar(max), Website nvarchar(max));
+
+select * from RFPDB_raw;
+
+select distinct ltrim(labelText) from RFPDB_raw;
 
 
-create table GOVUK_raw (jobID int, labelText nvarchar(max), resultText nvarchar(max), Website nvarchar(max));
-
-select * from GOVUK_raw;
-
-select distinct jobID from GOVUK_raw order by jobID desc;
-
-select distinct ltrim(labelText) from GOVUK_raw;
-
-
-SELECT jobID, Website, [Closing date], [Company:], [Contract location], [Contract value (high)], [Contract value (low)], [dateInserted:], [Notice status], [Notice type], [Publication date], [Title:], [URL:], [Description:]
-into GOVUK_pvt
+SELECT jobID, Website, [Categories], [dateInserted:], [description], [endDate], [Location], [Title:], [URL:]
+into RFPDB_pvt
 FROM    (   SELECT A.jobID, resultText, labelText, Website
-            FROM GOVUK_raw A 
+            FROM RFPDB_raw A 
         ) AS P
         PIVOT 
         (   MAX(resultText) 
-            FOR labeltext in ([Closing date], [Company:], [Contract location], [Contract value (high)], [Contract value (low)], [dateInserted:], [Notice status], [Notice type] , [Publication date], [Title:], [URL:], [Description:])
+            FOR labeltext in ([Categories], [dateInserted:], [description], [endDate], [Location], [Title:], [URL:])
         ) AS  PVT
 
-select * from GOVUK_pvt order by jobID;
+select * from RFPDB_pvt order by jobID;
 
-insert into GOVUK_pvt
-SELECT jobID, Website, [Closing date], [Company:], [Contract location], [Contract value (high)], [Contract value (low)], [dateInserted:], [Notice status], [Notice type], [Publication date], [Title:], [URL:], [Description:]
+insert into RFPDB_pvt
+SELECT jobID, Website, [Categories], [dateInserted:], [description], [endDate], [Location], [Title:], [URL:]
 FROM    (   SELECT A.jobID, resultText, labelText, Website
-            FROM GOVUK_raw A 
+            FROM RFPDB_raw A 
         ) AS P
         PIVOT 
         (   MAX(resultText) 
-            FOR labeltext in ([Closing date], [Company:], [Contract location], [Contract value (high)], [Contract value (low)], [dateInserted:], [Notice status], [Notice type] , [Publication date], [Title:], [URL:], [Description:])
+            FOR labeltext in ([Categories], [dateInserted:], [description], [endDate], [Location], [Title:], [URL:])
         ) AS  PVT
 
+update RFPDB_raw set resultText = substring(resultText,0, 11) where labelText = 'endDate';
 
-	select [closing date], substring([closing date], 2, 2) from GOVUK_pvt;
-	select [closing date], substring([closing date], 5, 2) from GOVUK_pvt;
-	select [closing date], substring([closing date], 8, 4) from GOVUK_pvt;
-
-	select [closing date], substring([closing date], 5, 2) + '/' + substring([closing date], 2, 2) + '/' + substring([closing date], 8, 4) from GOVUK_pvt;
-
-	update GOVUK_raw set [resultText] = substring([resultText], 5, 2) + '/' + substring([resultText], 2, 2) + '/' + substring([resultText], 8, 4) where [labelText] like '%Closing%' or [labelText] like '%Publication%';
-
-	select * from current_table;
+truncate table rfpdb_pvt;

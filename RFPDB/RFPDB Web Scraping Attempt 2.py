@@ -11,9 +11,6 @@ conn = pyodbc.connect('Driver={SQL Server};'
                       'Trusted_Connection=yes;')
 cursor = conn.cursor()
 
-container_labels = []
-container_results = []
-
 
 # Function that will simply truncate the table through python
 # - mainly to make life easier
@@ -32,6 +29,9 @@ def cleanRawSQL(site):
         conn.commit()
     elif(site == 'GOVUK'):
         cursor.execute("update GOVUK_raw set [resultText] = substring([resultText], 5, 2) + '/' + substring([resultText], 2, 2) + '/' + substring([resultText], 8, 4) where [labelText] like '%Closing%' or [labelText] like '%Publication%';")
+        conn.commit()
+    elif(site == 'RFPDB'):
+        cursor.execute("update RFPDB_raw set resultText = substring(resultText,0, 11) where labelText = 'endDate'")
         conn.commit()
 
 
@@ -102,7 +102,7 @@ def getContainers(site, startingNumber, HTMLobject, className):
     # Just connecting to the website
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
-    if(site == 'RFPDB'):
+    if(getScrapingCase(site) == 'RFPDB'):
         return soup.select('li[itemtype="http://schema.org/CreativeWork/RequestForProposal"]')
     else:
         return soup.findAll(HTMLobject, class_=className)
@@ -117,7 +117,7 @@ def getScrapingCase(site):
     elif(site == 'GOVUK'):
         return 'OneTag'
     elif(site == 'RFPDB'):
-        return 'NoTags'
+        return 'RFPDB'
 
 
 def getURLCase(site):
@@ -127,16 +127,20 @@ def getURLCase(site):
         return 'seperateURL'
 
 
-def listScrape(container, site):
+def listScrape(container, site, type):
+    tempList = []
     if(site == 'RFPDB'):
-        container_labels.append(container.find('span', class_='comment')['itemprop'])
-        container_results.append(container.find('span', class_='comment').text)
-        container_labels.append(container.find('time')['itemprop'])
-        container_results.append(container.find('time')['datetime'])
-        container_labels.append('Location')
-        container_results.append(container.select_one('span[itemprop="address"]').text)
-        container_labels.append('Categories')
-        container_results.append(container.find('ul', class_='categories').text)
+        if(type == 'labels'):
+            tempList.append(container.find('span', class_='comment')['itemprop'])
+            tempList.append(container.find('time')['itemprop'])
+            tempList.append('Location')
+            tempList.append('Categories')
+        if(type == 'results'):
+            tempList.append(container.find('span', class_='comment').text)
+            tempList.append(container.find('time')['datetime'])
+            tempList.append(container.select_one('span[itemprop="address"]').text)
+            tempList.append(container.find('ul', class_='categories').text)
+    return tempList
 
 
 # This hopefully works with many sites. Takes inputs, finds the items we want
@@ -146,13 +150,14 @@ def listScrape(container, site):
 # that you want to insert into, pageNumber and site are self explanatory.
 def searchAndUpload(container, labelHTML, resultHTML, labelDef, resultDef,
                     databaseName, jobNumber, pageNumber, site):
-    if(getScrapingCase(site) != 'NoTags'):
+    if(getScrapingCase(site) == 'RFPDB'):
+        container_labels = listScrape(container, site, 'labels')
+        container_results = listScrape(container, site, 'results')
+
+    else:
         container_labels = container.findAll(labelHTML, class_=labelDef)
         if(getScrapingCase(site) == 'TwoTags'):
             container_results = container.findAll(resultHTML, class_=resultDef)
-
-    else:
-        listScrape(container, site)
 
     for num in range(0, len(container_labels)):
         if(getScrapingCase(site) == 'OneTag'):
@@ -163,11 +168,18 @@ def searchAndUpload(container, labelHTML, resultHTML, labelDef, resultDef,
                            + site + '\')')
             conn.commit()
 
-        else:
+        elif(getScrapingCase(site) == 'TwoTags'):
             cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
                            + str(jobNumber).replace('\'', '\'\'') + '\', \''
                            + container_labels[num].text.replace('\'', '\'\'') + '\',  \''
                            + container_results[num].text.replace('\'', '\'\'') + '\',  \''
+                           + site + '\')')
+            conn.commit()
+        elif(getScrapingCase(site) == 'RFPDB'):
+            cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
+                           + str(jobNumber).replace('\'', '\'\'') + '\', \''
+                           + container_labels[num].replace('\'', '\'\'') + '\',  \''
+                           + container_results[num].replace('\'', '\'\'') + '\',  \''
                            + site + '\')')
             conn.commit()
 
@@ -176,7 +188,7 @@ def searchAndUpload(container, labelHTML, resultHTML, labelDef, resultDef,
         link = 'https://www.dasny.org' + title.find('a')['href']
 
     elif(site == 'RFPDB'):
-        title = container.find('a').text
+        title = container.find('a')
         link = 'http://www.rfpdb.com' + container.find('a')['href']
 
     elif(site == 'GOVUK'):
@@ -261,12 +273,12 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
     print(site + ' Completed')
 
 
-# scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
-#            'tr', 'r1', 2, 50)
-# scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
-#            'div', 'views-field views-field-nothing-1', 2, 10)
-# scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
-#            'div', 'search-result', 50, 20)
+scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
+           'tr', 'r1', 2, 50)
+scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
+           'div', 'views-field views-field-nothing-1', 2, 10)
+scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
+           'div', 'search-result', 50, 20)
 scrapeSite('RFPDB', '', '', '', '',
            '', '', 20, 12)
 cursor.close()

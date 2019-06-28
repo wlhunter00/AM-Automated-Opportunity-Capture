@@ -6,13 +6,12 @@ from bs4 import BeautifulSoup
 
 # connecting to website
 
-url = 'http://www.rfpdb.com/view/category/name/technology/page/1'
+url = 'http://www.rfpdb.com/view/category/name/analysis/page/1'
 response = requests.get(url)
 
 # Finding all of the hyperlink HTML tags
 
 soup = BeautifulSoup(response.text, "html.parser")
-
 containers = soup.select('li[itemtype="http://schema.org/CreativeWork/RequestForProposal"]')
 # print(containers[0])
 
