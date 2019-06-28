@@ -23,6 +23,7 @@ link = containers[1].find('a')['href']
 description = containers[1].find('a')['itemprop']
 print(title.text)
 print(link)
+print(description)
 # Title (url is in here too)
 # title = containers[19].find('div', class_='search-result-header')
 # link = title.find('a')['href']
