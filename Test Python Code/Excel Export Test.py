@@ -1,6 +1,8 @@
 import pandas as pd
 import pyodbc
 from datetime import datetime
+import glob
+import os
 
 # Connecting to SQL server
 conn = pyodbc.connect('Driver={SQL Server};'
@@ -8,6 +10,7 @@ conn = pyodbc.connect('Driver={SQL Server};'
                       'Database=OppHunter;'
                       'Trusted_Connection=yes;')
 cursor = conn.cursor()
+
 
 script1 = "select * from current_table where status = 'new'"
 df1 = pd.read_sql_query(script1, conn)
@@ -30,6 +33,7 @@ df6 = pd.read_sql_query(script6, conn)
 script7 = "select * from current_table where JobDescription like '%finance%'"
 df7 = pd.read_sql_query(script7, conn)
 
+
 with pd.ExcelWriter(r'C:\Users\whunter\Documents\GitHub\AM-Automated' +
                      '-Oppurtinity-Capture\Excel Sheets\Results_' +
                       datetime.now().strftime('%m-%d-%Y#%H%M') +
@@ -41,3 +45,8 @@ with pd.ExcelWriter(r'C:\Users\whunter\Documents\GitHub\AM-Automated' +
     df5.to_excel(writer, sheet_name='tech_related')
     df6.to_excel(writer, sheet_name='legal_related')
     df7.to_excel(writer, sheet_name='finance_related')
+
+list_of_files = glob.glob(r'C:\Users\whunter\Documents\GitHub\AM-Automated' +
+                           '-Oppurtinity-Capture\Excel Sheets\*')
+latest_file = max(list_of_files, key=os.path.getctime)
+print(latest_file)
