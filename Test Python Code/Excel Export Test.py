@@ -46,6 +46,15 @@ with pd.ExcelWriter(r'C:\Users\whunter\Documents\GitHub\AM-Automated' +
     df6.to_excel(writer, sheet_name='legal_related')
     df7.to_excel(writer, sheet_name='finance_related')
 
+with pd.ExcelWriter(r'C:\Users\whunter\Box\OppHunter\OppHunterResults.xlsx') as writer:
+    df1.to_excel(writer, sheet_name='newly_added')
+    df2.to_excel(writer, sheet_name='current_table')
+    df3.to_excel(writer, sheet_name='master_table')
+    df4.to_excel(writer, sheet_name='data_related')
+    df5.to_excel(writer, sheet_name='tech_related')
+    df6.to_excel(writer, sheet_name='legal_related')
+    df7.to_excel(writer, sheet_name='finance_related')
+
 list_of_files = glob.glob(r'C:\Users\whunter\Documents\GitHub\AM-Automated' +
                            '-Oppurtinity-Capture\Excel Sheets\*')
 latest_file = max(list_of_files, key=os.path.getctime)
