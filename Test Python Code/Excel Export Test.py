@@ -30,7 +30,7 @@ df5 = pd.read_sql_query(script5, conn)
 script6 = "select * from current_table where JobDescription like '%legal%' or JobDescription like '%law%'"
 df6 = pd.read_sql_query(script6, conn)
 
-script7 = "select * from current_table where JobDescription like '%finance%'"
+script7 = "select * from current_table where JobDescription like '%financ%'"
 df7 = pd.read_sql_query(script7, conn)
 
 
@@ -49,4 +49,4 @@ with pd.ExcelWriter(r'C:\Users\whunter\Documents\GitHub\AM-Automated' +
 list_of_files = glob.glob(r'C:\Users\whunter\Documents\GitHub\AM-Automated' +
                            '-Oppurtinity-Capture\Excel Sheets\*')
 latest_file = max(list_of_files, key=os.path.getctime)
-print(latest_file)
+print(str(latest_file))
