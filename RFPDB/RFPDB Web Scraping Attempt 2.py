@@ -110,7 +110,6 @@ def getContainers(site, startingNumber, HTMLobject, className):
 def getDatabase(site):
     return [site + '_raw', site + '_pvt']
 
-
 def getScrapingCase(site):
     if(site == 'NYSCR' or site == 'DASNY'):
         return 'TwoTags'

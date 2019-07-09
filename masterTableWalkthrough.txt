@@ -1,9 +1,0 @@
-Site 1:
-jobID, Website, Title, Solicitation #, Issue Date, Due Date, Classification, Location, Type, Goals%, Status, dateInserted, URL
-
-Site 2:
-jobID, Website, Title, Company, Category, dateInserted, Due Date, Issue Date, Location, URL, Ad Type
-
-Master Table:
-jobID, Website, Description, Company, DueDate, IssueDate, dateInserted, Type, URL, Location, Category
-string, string, string, string, date, date, date, date, string, URL, string, string 

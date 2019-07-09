@@ -1,0 +1,7 @@
+select * from current_table where status = 'new':newly_added
+select * from current_table:current_table
+select * from master_table:master_table
+select * from current_table where JobDescription like '%data%':data_related
+select * from current_table where JobDescription like '%tech%':tech_related
+select * from current_table where JobDescription like '%legal%' or JobDescription like '%law%':law_related
+select * from current_table where JobDescription like '%financ%':finance_related
