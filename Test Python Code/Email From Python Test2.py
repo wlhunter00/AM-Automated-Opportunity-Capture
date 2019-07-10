@@ -1,6 +1,6 @@
 import yagmail
 
-file = open("C:/Users/whunter/Desktop/Email Information.txt", "r")
+file = open("C:/Users/whunter/Documents/Email Information.txt", "r")
 lines = file.readlines()
 senderEmail = lines[1]
 password = lines[3]

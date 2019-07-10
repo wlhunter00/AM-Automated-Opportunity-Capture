@@ -68,18 +68,18 @@ def queryToExcelSheet():
 def sendEmail():
     # Opening Local Email Text File to retrieve information. Then stores sensative
     # information in variables.
-    EmailInformationfile = open("C:/Users/whunter/Documents/Email Information.txt", "r")
-    EmailInformationlines = EmailInformationfile.readlines()
-    senderEmail = EmailInformationlines[1]
-    password = EmailInformationlines[3]
-    listAddresses = EmailInformationlines[4:]
-    print(len(dfForCount))
-    print(dataFrames[6].count(axis=0)[0])
-    print(type(dataFrames[6].count(axis=0)[0]))
-    print(type(str(dataFrames[6].count(axis=0)[0])))
+
+    file = open("C:/Users/whunter/Documents/Email Information.txt", "r")
+    lines = file.readlines()
+    senderEmail = lines[1]
+    password = lines[3]
+    listAddresses = lines[4:]
+    subject = 'Opportunity Hunter Daily Update'
     # Stores string variables to be used in email.
     subject = 'Opportunity Hunter Daily Update'
     body = 'Hello,\n\nThis is the daily Opportunity Hunter Report. Click the link to access the Excel Report.'
+    # HTML code for the email, str(dataFrame[X].count(axis=0)[0]) is the count
+    # of the rows in each table.
     html = ('<br><a href="https://alvarezandmarsal.box.com/s/hpchnqin29htdjpv0af8oyseilxl6vqc">Opportunity Hunter Report</a><br><br>' +
             '<p>Consider the table below for a quick update of the status of the table. <br>' +
             'Please respond to this email if you have any issues, or want to add any keywords. Please do not leave the table open for too long, as it needs to be closed everywhere for it to be updated.</p>' +
@@ -99,11 +99,12 @@ def sendEmail():
             '</td><td align="center">' + str(dataFrames[3].count(axis=0)[0]) +
             '</td><td align="center">' + str(dataFrames[4].count(axis=0)[0]) +
             '</td><td align="center">' + str(dataFrames[5].count(axis=0)[0]) +
-            '</td><td align="center">' + str(dataFrames[6].count(axis=0)[0] +
+            '</td><td align="center">' + str(dataFrames[6].count(axis=0)[0]) +
             '<br></td></tr></table><p>Thank You.</p>'
             )
-    # connects to server and sends email.
+    # Connecting to server
     yag = yagmail.SMTP(senderEmail, password)
+    # Sends email.
     yag.send(to=listAddresses, subject=subject, contents=[body, html])
 
 queryToExcelSheet()
