@@ -3,6 +3,8 @@ import yagmail
 import pandas as pd
 import pyodbc
 from datetime import datetime
+import glob
+import os
 
 # Connecting to SQL server
 conn = pyodbc.connect('Driver={SQL Server};'
@@ -47,6 +49,7 @@ def loadCountingFrames():
 def writeToExcel(writer):
     for num in range(0, len(dataFrames)-1):
         dataFrames[num].to_excel(writer, sheet_name=sheets[num])
+        print('Loaded: ' + sheets[num])
 
 
 # Master function for storing in Excel Sheet
@@ -54,10 +57,10 @@ def queryToExcelSheet():
     splitKeyWordFile()
     loadDataFrames()
     loadCountingFrames()
-    with pd.ExcelWriter(r'C:\Users\whunter\Documents\GitHub\AM-Automated' +
-                         '-Oppurtinity-Capture\Excel Sheets\Results_' +
-                          datetime.now().strftime('%m-%d-%Y#%H%M') +
-                          '.xlsx') as writer:
+    with pd.ExcelWriter(r'C:\Users\whunter\Documents\GitHub\AM-Automated'
+                        + '-Oppurtinity-Capture\Excel Sheets\Results_'
+                        + datetime.now().strftime('%m-%d-%Y#%H%M')
+                        + '.xlsx') as writer:
         writeToExcel(writer)
 
     with pd.ExcelWriter(r'C:\Users\whunter\Box\OppHunter\OppHunterResults.xlsx') as writer:
@@ -66,14 +69,17 @@ def queryToExcelSheet():
 
 # One function to send email
 def sendEmail():
-    # Opening Local Email Text File to retrieve information. Then stores sensative
-    # information in variables.
+    # Opening Local Email Text File to retrieve information. Then stores
+    # sensative information in variables.
 
     file = open("C:/Users/whunter/Documents/Email Information.txt", "r")
     lines = file.readlines()
     senderEmail = lines[1]
     password = lines[3]
     listAddresses = lines[4:]
+    list_of_reports = glob.glob(r'C:\Users\whunter\Documents\GitHub\AM-Automated'
+                                + '-Oppurtinity-Capture\Excel Sheets\*')
+    latest_report = max(list_of_reports, key=os.path.getctime)
     subject = 'Opportunity Hunter Daily Update'
     # Stores string variables to be used in email.
     subject = 'Opportunity Hunter Daily Update'
@@ -84,28 +90,30 @@ def sendEmail():
             '<p>Consider the table below for a quick update of the status of the table. <br>' +
             'Please respond to this email if you have any issues, or want to add any keywords. Please do not leave the table open for too long, as it needs to be closed everywhere for it to be updated.</p>' +
             '<table><tr><th></th><th>Newly Added</th><th>Current Table<th>Master Table</th><th>Data Related</th><th>Tech Related</th><th>Law Related</th><th>Finance Related</th></tr>' +
-            '<tr><td>New Additions</td><td align="center">' +
-            str(dataFrames[0].count(axis=0)[0]) +
-            '</td><td align="center">' + str(dataFrames[0].count(axis=0)[0]) +
-            '</td><td align="center">' + str(dataFrames[0].count(axis=0)[0]) +
-            '</td><td align="center">' + str(dfForCount[0].count(axis=0)[0]) +
-            '</td><td align="center">' + str(dfForCount[1].count(axis=0)[0]) +
-            '</td><td align="center">' + str(dfForCount[2].count(axis=0)[0]) +
-            '</td><td align="center">' + str(dfForCount[3].count(axis=0)[0]) +
-            '</td></tr>' + '<tr><td>Total Jobs</td><td align="center">' +
-            str(dataFrames[0].count(axis=0)[0]) +
-            '</td><td align="center">' + str(dataFrames[1].count(axis=0)[0]) +
-            '</td><td align="center">' + str(dataFrames[2].count(axis=0)[0]) +
-            '</td><td align="center">' + str(dataFrames[3].count(axis=0)[0]) +
-            '</td><td align="center">' + str(dataFrames[4].count(axis=0)[0]) +
-            '</td><td align="center">' + str(dataFrames[5].count(axis=0)[0]) +
-            '</td><td align="center">' + str(dataFrames[6].count(axis=0)[0]) +
-            '<br></td></tr></table><p>Thank You.</p>'
+            '<tr><td>New Additions</td><td align="center">'
+            + str(dataFrames[0].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[0].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[0].count(axis=0)[0])
+            + '</td><td align="center">' + str(dfForCount[0].count(axis=0)[0])
+            + '</td><td align="center">' + str(dfForCount[1].count(axis=0)[0])
+            + '</td><td align="center">' + str(dfForCount[2].count(axis=0)[0])
+            + '</td><td align="center">' + str(dfForCount[3].count(axis=0)[0])
+            + '</td></tr>' + '<tr><td>Total Jobs</td><td align="center">'
+            + str(dataFrames[0].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[1].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[2].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[3].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[4].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[5].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[6].count(axis=0)[0])
+            + '<br></td></tr></table><p>Thank You.</p>'
             )
     # Connecting to server
     yag = yagmail.SMTP(senderEmail, password)
     # Sends email.
-    yag.send(to=listAddresses, subject=subject, contents=[body, html])
+    yag.send(to=listAddresses, subject=subject, contents=[body, html, latest_report])
+    print('Email Sent.')
+
 
 queryToExcelSheet()
 sendEmail()
