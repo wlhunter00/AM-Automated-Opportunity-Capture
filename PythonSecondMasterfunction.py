@@ -108,6 +108,7 @@ def sendEmail():
             + '</td><td align="center">' + str(dataFrames[6].count(axis=0)[0])
             + '<br></td></tr></table><p>Thank You.</p>'
             )
+    print('Attachments Loaded. Connecting to Server.')
     # Connecting to server
     yag = yagmail.SMTP(senderEmail, password)
     # Sends email.
