@@ -38,7 +38,7 @@ def loadDataFrames():
 # For the queries that use LIKE creates dataframes that isolate the new ones so
 # we can count the new jobs.
 def loadCountingFrames():
-    for num in range(3, len(dataFrames)-1):
+    for num in range(3, len(dataFrames)):
         dfForCount.append(dataFrames[num][dataFrames[num]['Status'] == 'New'])
 
 
@@ -62,8 +62,6 @@ def queryToExcelSheet():
 
     with pd.ExcelWriter(r'C:\Users\whunter\Box\OppHunter\OppHunterResults.xlsx') as writer:
         writeToExcel(writer)
-    print(dataFrames[0].count(axis=0)[0])
-    print(dfForCount[0].count(axis=0)[0])
 
 
 # One function to send email
@@ -75,7 +73,10 @@ def sendEmail():
     senderEmail = EmailInformationlines[1]
     password = EmailInformationlines[3]
     listAddresses = EmailInformationlines[4:]
-
+    print(len(dfForCount))
+    print(dataFrames[6].count(axis=0)[0])
+    print(type(dataFrames[6].count(axis=0)[0]))
+    print(type(str(dataFrames[6].count(axis=0)[0])))
     # Stores string variables to be used in email.
     subject = 'Opportunity Hunter Daily Update'
     body = 'Hello,\n\nThis is the daily Opportunity Hunter Report. Click the link to access the Excel Report.'
@@ -83,20 +84,27 @@ def sendEmail():
             '<p>Consider the table below for a quick update of the status of the table. <br>' +
             'Please respond to this email if you have any issues, or want to add any keywords. Please do not leave the table open for too long, as it needs to be closed everywhere for it to be updated.</p>' +
             '<table><tr><th></th><th>Newly Added</th><th>Current Table<th>Master Table</th><th>Data Related</th><th>Tech Related</th><th>Law Related</th><th>Finance Related</th></tr>' +
-            '<tr><td>New Additions</td><td align="center">' + dataFrames[0].count(axis=0)[0] +
-            '</td><td align="center">' + dataFrames[0].count(axis=0)[0] + '</td><td align="center">' + dataFrames[0].count(axis=0)[0] +
-            '</td><td align="center">' + dfForCount[0].count(axis=0)[0] + '</td><td align="center">' + dfForCount[1].count(axis=0)[0] +
-            '</td><td align="center">' + dfForCount[2].count(axis=0)[0] + '</td><td align="center">' + dfForCount[3].count(axis=0)[0] +
-            '</td></tr>' + '<tr><td>Total Jobs</td><td align="center">' + dataFrames[0].count(axis=0)[0] +
-            '</td><td align="center">' + dataFrames[1].count(axis=0)[0] + '</td><td align="center">' + dataFrames[2].count(axis=0)[0] +
-            '</td><td align="center">' + dataFrames[3].count(axis=0)[0] + '</td><td align="center">' + dataFrames[4].count(axis=0)[0] +
-            '</td><td align="center">' + dataFrames[5].count(axis=0)[0] + '</td><td align="center">' + dataFrames[6].count(axis=0)[0] +
+            '<tr><td>New Additions</td><td align="center">' +
+            str(dataFrames[0].count(axis=0)[0]) +
+            '</td><td align="center">' + str(dataFrames[0].count(axis=0)[0]) +
+            '</td><td align="center">' + str(dataFrames[0].count(axis=0)[0]) +
+            '</td><td align="center">' + str(dfForCount[0].count(axis=0)[0]) +
+            '</td><td align="center">' + str(dfForCount[1].count(axis=0)[0]) +
+            '</td><td align="center">' + str(dfForCount[2].count(axis=0)[0]) +
+            '</td><td align="center">' + str(dfForCount[3].count(axis=0)[0]) +
+            '</td></tr>' + '<tr><td>Total Jobs</td><td align="center">' +
+            str(dataFrames[0].count(axis=0)[0]) +
+            '</td><td align="center">' + str(dataFrames[1].count(axis=0)[0]) +
+            '</td><td align="center">' + str(dataFrames[2].count(axis=0)[0]) +
+            '</td><td align="center">' + str(dataFrames[3].count(axis=0)[0]) +
+            '</td><td align="center">' + str(dataFrames[4].count(axis=0)[0]) +
+            '</td><td align="center">' + str(dataFrames[5].count(axis=0)[0]) +
+            '</td><td align="center">' + str(dataFrames[6].count(axis=0)[0] +
             '<br></td></tr></table><p>Thank You.</p>'
             )
     # connects to server and sends email.
     yag = yagmail.SMTP(senderEmail, password)
     yag.send(to=listAddresses, subject=subject, contents=[body, html])
 
-
-sendEmail()
 queryToExcelSheet()
+sendEmail()
