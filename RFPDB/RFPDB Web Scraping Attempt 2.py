@@ -3,6 +3,7 @@ import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
 import pyodbc
+import pandas as pd
 # Connecting to SQL server
 conn = pyodbc.connect('Driver={SQL Server};'
                       'Server=jackson;'
@@ -79,7 +80,7 @@ def findLastJob(tableName):
 # Function takes in the name of the site we are scraping and the page number we
 # are looking at. The urls will have to be hard coded, but doing it in a
 # function will allow it to be modular. Returns the finished url to work with.
-def getURL(site, startingNumber):
+def getURL(site, startingNumber, category):
     if(site == 'NYSCR'):
         urlFromFunction = 'https://www.nyscr.ny.gov/adsOpen.cfm?startnum=' + startingNumber + '&orderBy=55&numPer=50&myAdsOnly=2&adClass=b&adCat=&adCounty=&adType=&mbe=0&wbe=0&dbe=0&keyword='
     elif(site == 'DASNY'):
@@ -87,7 +88,7 @@ def getURL(site, startingNumber):
     elif(site == 'GOVUK'):
         urlFromFunction = 'https://www.contractsfinder.service.gov.uk/Search/Results?&page='+ startingNumber + '#dashboard_notices'
     elif(site == 'RFPDB'):
-        urlFromFunction = 'http://www.rfpdb.com/view/category/name/technology/page/' + startingNumber
+        urlFromFunction = 'http://www.rfpdb.com/view/category/name/'+ category + '/page/' + startingNumber
     return urlFromFunction
 
 
@@ -96,8 +97,8 @@ def getURL(site, startingNumber):
 # the information you need. Inputs are the url, the page number you want to
 # scrape, how the object is defined and what the class name is. Should work for
 # every type of site.
-def getContainers(site, startingNumber, HTMLobject, className):
-    url = getURL(site, startingNumber)
+def getContainers(site, startingNumber, HTMLobject, className, category):
+    url = getURL(site, startingNumber, category)
     # Just connecting to the website
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
@@ -212,7 +213,7 @@ def searchAndUpload(container, labelHTML, resultHTML, labelDef, resultDef,
         cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, resultText, website) VALUES (\''
                        + str(jobNumber).replace('\'', '\'\'') + '\', \''
                        + 'URL:' + '\',  \''
-                       + getURL(site, pageNumber).replace('\'', '\'\'') + '\',  \''
+                       + getURL(site, pageNumber, '').replace('\'', '\'\'') + '\',  \''
                        + site + '\')')
         conn.commit()
 
@@ -246,7 +247,6 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
                containerHTML, containerDef, numberOfPages, jobsPerPage):
     # Optional, clear the database
     databases = getDatabase(site)
-    truncateSQL(databases[0])
     # Finds last job number in database and adds one
     jobNumber = findLastJob(databases[0])+1
     # Start num is an array of page numbers
@@ -256,7 +256,7 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
     for start in startNum:
         # The job_containers is the HTML element that encompases every job.
         # Allows us to run multiple containers
-        job_containers = getContainers(site, start, containerHTML, containerDef)
+        job_containers = getContainers(site, start, containerHTML, containerDef, labelHTML)
         # A for loop that goes through all of the containers and extracts the
         # info from the specific job. The way this is done will differ for each
         # website
@@ -271,15 +271,18 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
     cleanRawSQL(site)
     print(site + ' Completed')
 
-
-scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
-           'tr', 'r1', 2, 50)
-scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
-           'div', 'views-field views-field-nothing-1', 2, 10)
-scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
-           'div', 'search-result', 50, 20)
-scrapeSite('RFPDB', '', '', '', '',
-           '', '', 20, 12)
+#
+# scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
+#            'tr', 'r1', 2, 50)
+# scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
+#            'div', 'views-field views-field-nothing-1', 2, 10)
+# scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
+#            'div', 'search-result', 50, 20)
+RFPDBCategories = pd.read_sql_query('select * from RFPDBCategories_tbl', conn)
+for index, row in RFPDBCategories.iterrows():
+    scrapeSite('RFPDB', row["category"], '', '', '',
+               '', '', row["pageNumbers"], 12)
+    print('RFPDB - ' + row["category"] + ' - completed.')
 cursor.close()
 conn.close()
 print('All sites scraped')

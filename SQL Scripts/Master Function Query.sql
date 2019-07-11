@@ -84,4 +84,7 @@ SELECT distinct JobDescription, Website, Company, DueDate, IssueDate, InsertDate
 FROM master_table
 WHERE master_table.JobDescription not in(select JobDescription from current_table) and master_table.DueDate > GETDATE();
 
-
+truncate table NYSCR_raw;
+truncate table DASNY_raw;
+truncate table GOVUK_raw;
+truncate table RFPDB_raw;
