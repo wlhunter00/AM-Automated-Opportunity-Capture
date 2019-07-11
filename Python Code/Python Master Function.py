@@ -341,7 +341,7 @@ def sendEmail():
     subject = 'Opportunity Hunter Daily Update'
     # Stores string variables to be used in email.
     subject = 'Opportunity Hunter Daily Update'
-    body = 'Hello,\n\nThis is the daily Opportunity Hunter Report. Click the link to access the Excel Report.'
+    body = 'Hello,\n\nThis is the Daily Opportunity Hunter Report. Click the link to access the Excel Report.'
     # Update message to add on to the email to inform the team
     update = ('Todays report is completely automatic, done by Windows scheduler!')
     # HTML code for the email, str(dataFrame[X].count(axis=0)[0]) is the count
