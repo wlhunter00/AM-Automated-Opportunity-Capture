@@ -302,7 +302,11 @@ def loadCountingFrames():
 # Given a writer, turns all of the data frames into the excel spreadsheet with
 # the name of sheetnames stored from the text file
 def writeToExcel(writer):
+    print(len(dataFrames))
     for num in range(0, len(dataFrames)):
+        # print(dataFrames[num])
+        print(sheets[num])
+        print(writer)
         dataFrames[num].to_excel(writer, sheet_name=sheets[num])
         print('Loaded: ' + sheets[num])
 
@@ -316,6 +320,7 @@ def queryToExcelSheet():
                         + '-Oppurtinity-Capture\Excel Sheets\Results_'
                         + datetime.now().strftime('%m-%d-%Y#%H%M')
                         + '.xlsx') as writer:
+        print(writer)
         writeToExcel(writer)
 
     with pd.ExcelWriter(r'C:\Users\whunter\Box\OppHunter\OppHunterResults.xlsx') as writer:
