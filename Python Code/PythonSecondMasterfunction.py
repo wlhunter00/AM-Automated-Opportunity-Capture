@@ -13,8 +13,6 @@ conn = pyodbc.connect('Driver={SQL Server};'
                       'Trusted_Connection=yes;')
 cursor = conn.cursor()
 # Opening file with the keywords. Way these are written is Query:SheetName
-keywordFile = open("C:/Users/whunter/Documents/GitHub/AM-Automated-Oppurtinity-Capture/SQL-Python Keywords Queries.txt", "r")
-lines = keywordFile.readlines()
 # Creation of Lists to be Used Later
 queries = []
 sheets = []
@@ -25,6 +23,8 @@ dfForCount = []
 # Function that goes through text file and stores queries and sheets into
 # seperate lists.
 def splitKeyWordFile():
+    keywordFile = open("C:/Users/whunter/Documents/GitHub/AM-Automated-Oppurtinity-Capture/SQL-Python Keywords Queries.txt", "r")
+    lines = keywordFile.readlines()
     for line in lines:
         splitList = line.split(':')
         queries.append(splitList[0])
