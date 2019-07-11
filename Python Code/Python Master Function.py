@@ -89,7 +89,7 @@ def findLastJob(tableName):
 # Function takes in the name of the site we are scraping and the page number we
 # are looking at. The urls will have to be hard coded, but doing it in a
 # function will allow it to be modular. Returns the finished url to work with.
-def getURL(site, startingNumber, category):
+def getURL(site, startingNumber):
     if(site == 'NYSCR'):
         urlFromFunction = 'https://www.nyscr.ny.gov/adsOpen.cfm?startnum=' + startingNumber + '&orderBy=55&numPer=50&myAdsOnly=2&adClass=b&adCat=&adCounty=&adType=&mbe=0&wbe=0&dbe=0&keyword='
     elif(site == 'DASNY'):
@@ -97,7 +97,7 @@ def getURL(site, startingNumber, category):
     elif(site == 'GOVUK'):
         urlFromFunction = 'https://www.contractsfinder.service.gov.uk/Search/Results?&page='+ startingNumber + '#dashboard_notices'
     elif(site == 'RFPDB'):
-        urlFromFunction = 'http://www.rfpdb.com/view/category/name/'+ category + '/page/' + startingNumber
+        urlFromFunction = 'http://www.rfpdb.com/view/category/name/technology/page/' + startingNumber
     return urlFromFunction
 
 
@@ -106,8 +106,8 @@ def getURL(site, startingNumber, category):
 # the information you need. Inputs are the url, the page number you want to
 # scrape, how the object is defined and what the class name is. Should work for
 # every type of site.
-def getContainers(site, startingNumber, HTMLobject, className, category):
-    url = getURL(site, startingNumber, category)
+def getContainers(site, startingNumber, HTMLobject, className):
+    url = getURL(site, startingNumber)
     # Just connecting to the website
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
@@ -236,7 +236,7 @@ def searchAndUpload(container, labelHTML, resultHTML, titleHTML, labelDef,
     # If there is no URL just insert where the page we scraped
     elif(getURLCase(site) == 'noURL'):
         insertIntoSQL(databaseName, jobNumber, 'URL:',
-                      getURL(site, pageNumber, ''), site)
+                      getURL(site, pageNumber), site)
     # For every job insert the time it was scraped
     insertIntoSQL(databaseName, jobNumber, 'dateInserted:',
                   datetime.now().strftime('%m/%d/%Y %H:%M:%S'), site)
@@ -251,16 +251,18 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
                jobsPerPage):
     # Get table names
     databases = getDatabase(site)
+    # Optional, clear the database
+    truncateSQL(databases[0])
     # Finds last job number in database and adds one
     jobNumber = findLastJob(databases[0])+1
-    # Start num is an array of urls
+    # Start num is an array of page numbers
     startNum = calculatePageNumber(numberOfPages, jobsPerPage, site)
     # For loop that goes through the array. Basically allows us to run multiple
     # pages
     for start in startNum:
         # The job_containers is the HTML element that encompases every job.
         # Allows us to run multiple containers
-        job_containers = getContainers(site, start, containerHTML, containerDef, labelHTML)
+        job_containers = getContainers(site, start, containerHTML, containerDef)
         # A for loop that goes through all of the containers and extracts the
         # info from the specific job. The way this is done will differ for each
         # website
@@ -274,6 +276,7 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
             jobNumber += 1
         print('Scraped: ' + site + " - Page " + start)
     print(site + ' Completed')
+
 
 # Function that goes through text file and stores queries and sheets into
 # seperate lists.
@@ -302,11 +305,7 @@ def loadCountingFrames():
 # Given a writer, turns all of the data frames into the excel spreadsheet with
 # the name of sheetnames stored from the text file
 def writeToExcel(writer):
-    print(len(dataFrames))
     for num in range(0, len(dataFrames)):
-        # print(dataFrames[num])
-        print(sheets[num])
-        print(writer)
         dataFrames[num].to_excel(writer, sheet_name=sheets[num])
         print('Loaded: ' + sheets[num])
 
@@ -320,7 +319,6 @@ def queryToExcelSheet():
                         + '-Oppurtinity-Capture\Excel Sheets\Results_'
                         + datetime.now().strftime('%m-%d-%Y#%H%M')
                         + '.xlsx') as writer:
-        print(writer)
         writeToExcel(writer)
 
     with pd.ExcelWriter(r'C:\Users\whunter\Box\OppHunter\OppHunterResults.xlsx') as writer:
@@ -345,7 +343,7 @@ def sendEmail():
     subject = 'Opportunity Hunter Daily Update'
     body = 'Hello,\n\nThis is the Daily Opportunity Hunter Report. Click the link to access the Excel Report.'
     # Update message to add on to the email to inform the team
-    update = ('This email is the first fully automatic one thanks to windows scheduler!')
+    update = ('Todays report is completely automatic, done by Windows scheduler!')
     # HTML code for the email, str(dataFrame[X].count(axis=0)[0]) is the count
     # of the rows in each table.
     html = ('<br><a href="https://alvarezandmarsal.box.com/s/hpchnqin29htdjpv0af8oyseilxl6vqc">Opportunity Hunter Report</a><br><br>' +
@@ -379,28 +377,19 @@ def sendEmail():
     print('Email Sent.')
 
 
-# scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
-#            'tr', 'r1', '', '', 2, 50)
-# scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
-#            'div', 'views-field views-field-nothing-1', 'div', 'rfp-bid-title',
-#             2, 10)
-# scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
-#            'div', 'search-result', 'div', 'search-result-header', 50, 20)
-# # Since RFPDB has many category pages that could all be used, we retrieve a
-# # table from SQL with the category names and the number of pages associated
-# # with each category, then itterate through them all. We use the fact that
-# # RFPDB doesn't have a label parameter to pass through the category to get then
-# # URL that way.
-# RFPDBCategories = pd.read_sql_query('select * from RFPDBCategories_tbl', conn)
-# for index, row in RFPDBCategories.iterrows():
-#     scrapeSite('RFPDB', row["category"], '', '', '',
-#                '', '', 'a', '', row["pageNumbers"], 12)
-#     print('RFPDB - ' + row["category"] + ' - completed.')
-# print('All sites scraped.')
-# executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\cleanRawSQL.sql")
-# print('All tables cleaned.')
-# executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
-# print('Master SQL Function Complete.')
+scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
+           'tr', 'r1', '', '', 2, 50)
+scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
+           'div', 'views-field views-field-nothing-1', 'div', 'rfp-bid-title',
+            2, 10)
+scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
+           'div', 'search-result', 'div', 'search-result-header', 50, 20)
+scrapeSite('RFPDB', '', '', '', '', '', '', 'a', '', 20, 12)
+print('All sites scraped.')
+executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\cleanRawSQL.sql")
+print('All tables cleaned.')
+executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
+print('Master SQL Function Complete.')
 queryToExcelSheet()
 sendEmail()
 print('Master Function Complete.')
