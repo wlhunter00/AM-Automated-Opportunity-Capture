@@ -306,6 +306,7 @@ def loadCountingFrames():
 # the name of sheetnames stored from the text file
 def writeToExcel(writer):
     for num in range(0, len(dataFrames)):
+        print(writer)
         dataFrames[num].to_excel(writer, sheet_name=sheets[num])
         print('Loaded: ' + sheets[num])
 
@@ -315,11 +316,11 @@ def queryToExcelSheet():
     splitKeyWordFile()
     loadDataFrames()
     loadCountingFrames()
-    with pd.ExcelWriter(r'C:\Users\whunter\Documents\GitHub\AM-Automated'
-                        + '-Oppurtinity-Capture\Excel Sheets\Results_'
-                        + datetime.now().strftime('%m-%d-%Y#%H%M')
-                        + '.xlsx') as writer:
-        writeToExcel(writer)
+    # with pd.ExcelWriter(r'C:\Users\whunter\Documents\GitHub\AM-Automated'
+    #                     + '-Oppurtinity-Capture\Excel Sheets\Results_'
+    #                     + datetime.now().strftime('%m-%d-%Y#%H%M')
+    #                     + '.xlsx') as writer:
+    #     writeToExcel(writer)
 
     with pd.ExcelWriter(r'C:\Users\whunter\Box\OppHunter\OppHunterResults.xlsx') as writer:
         writeToExcel(writer)
