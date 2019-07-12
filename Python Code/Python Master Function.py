@@ -305,8 +305,9 @@ def loadCountingFrames():
 # Given a writer, turns all of the data frames into the excel spreadsheet with
 # the name of sheetnames stored from the text file
 def writeToExcel(writer):
+    # print(sheets)
+    # print(writer)
     for num in range(0, len(dataFrames)):
-        print(writer)
         dataFrames[num].to_excel(writer, sheet_name=sheets[num])
         print('Loaded: ' + sheets[num])
 
@@ -321,6 +322,7 @@ def queryToExcelSheet():
     #                     + datetime.now().strftime('%m-%d-%Y#%H%M')
     #                     + '.xlsx') as writer:
     #     writeToExcel(writer)
+
 
     with pd.ExcelWriter(r'C:\Users\whunter\Box\OppHunter\OppHunterResults.xlsx') as writer:
         writeToExcel(writer)
@@ -344,7 +346,7 @@ def sendEmail():
     subject = 'Opportunity Hunter Daily Update'
     body = 'Hello,\n\nThis is the Daily Opportunity Hunter Report. Click the link to access the Excel Report.'
     # Update message to add on to the email to inform the team
-    update = ('Todays report is completely automatic, done by Windows scheduler!')
+    update = ('This one is a test. There was a bug but hopefully now we are ok.')
     # HTML code for the email, str(dataFrame[X].count(axis=0)[0]) is the count
     # of the rows in each table.
     html = ('<br><a href="https://alvarezandmarsal.box.com/s/hpchnqin29htdjpv0af8oyseilxl6vqc">Opportunity Hunter Report</a><br><br>' +
