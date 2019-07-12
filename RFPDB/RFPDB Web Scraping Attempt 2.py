@@ -230,8 +230,8 @@ def searchAndUpload(container, labelHTML, resultHTML, titleHTML, labelDef,
     # For every job insert the time it was scraped
     insertIntoSQL(databaseName, jobNumber, 'dateInserted:',
                   datetime.now().strftime('%m/%d/%Y %H:%M:%S'), site)
-    
-    
+
+
 # The function that does all the work. Site is the specific site to analyze,
 # database is the database you want to insert into, labelHTML, resultHTML, and
 # containerHTML are the kind of HTML element these objects are, their defs are
@@ -271,7 +271,7 @@ scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
             2, 10)
 scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
            'div', 'search-result', 'div', 'search-result-header', 50, 20)
-
+RFPDBCategories = pd.read_sql_query('select * from RFPDBCategories_tbl', conn)
 for index, row in RFPDBCategories.iterrows():
     scrapeSite('RFPDB', row["category"], '', '', '',
                '', '', '', 'a', row["pageNumbers"], 12)
