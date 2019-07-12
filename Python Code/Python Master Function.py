@@ -7,12 +7,16 @@ import yagmail
 import pandas as pd
 import glob
 import os
+import string
 # Connecting to SQL server
 conn = pyodbc.connect('Driver={SQL Server};'
                       'Server=jackson;'
                       'Database=OppHunter;'
                       'Trusted_Connection=yes;')
 cursor = conn.cursor()
+
+# Making sure characters are ascii.
+printable = set(string.printable)
 
 # Opening file with the keywords. Way these are written is Query:SheetName
 # Creation of Lists to be Used Later
@@ -170,8 +174,8 @@ def insertIntoSQL(databaseName, jobNumber, label, result, site):
     cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, '
                    + 'resultText, website) VALUES (\''
                    + str(jobNumber).replace('\'', '\'\'') + '\', \''
-                   + label.replace('\'', '\'\'') + '\',  \''
-                   + result.replace('\'', '\'\'') + '\',  \''
+                   + ''.join(filter(lambda x: x in string.printable, label)).replace('\'', '\'\'') + '\',  \''
+                   + ''.join(filter(lambda x: x in string.printable, result)).replace('\'', '\'\'') + '\',  \''
                    + site + '\')')
     conn.commit()
 
@@ -252,8 +256,6 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
                jobsPerPage):
     # Get table names
     databases = getDatabase(site)
-    # Optional, clear the database
-    truncateSQL(databases[0])
     # Finds last job number in database and adds one
     jobNumber = findLastJob(databases[0])+1
     # Start num is an array of page numbers
@@ -306,6 +308,7 @@ def loadCountingFrames():
 # Given a writer, turns all of the data frames into the excel spreadsheet with
 # the name of sheetnames stored from the text file
 def writeToExcel(writer):
+    print(dataFrames[0].loc[3])
     for num in range(0, len(dataFrames)):
         dataFrames[num].to_excel(writer, sheet_name=sheets[num])
         print('Loaded: ' + sheets[num])
@@ -343,7 +346,7 @@ def sendEmail():
     subject = 'Opportunity Hunter Daily Update'
     body = 'Hello,\n\nThis is the Daily Opportunity Hunter Report. Click the link to access the Excel Report.'
     # Update message to add on to the email to inform the team
-    update = ('This one is a test. There was a bug but hopefully now we are ok.')
+    update = ('This hopefully is being sent over the weekend.')
     # HTML code for the email, str(dataFrame[X].count(axis=0)[0]) is the count
     # of the rows in each table.
     html = ('<br><a href="https://alvarezandmarsal.box.com/s/hpchnqin29htdjpv0af8oyseilxl6vqc">Opportunity Hunter Report</a><br><br>' +
@@ -387,7 +390,7 @@ scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
 RFPDBCategories = pd.read_sql_query('select * from RFPDBCategories_tbl', conn)
 for index, row in RFPDBCategories.iterrows():
     scrapeSite('RFPDB', row["category"], '', '', '',
-               '', '', '', 'a', row["pageNumbers"], 12)
+               '', '', 'a', '', row["pageNumbers"], 12)
     print('RFPDB - ' + row["category"] + ' - completed.')
 print('All sites scraped.')
 executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\cleanRawSQL.sql")

@@ -1,6 +1,8 @@
 import math
 import datetime
+import string
 
+printable = set(string.printable)
 print(datetime.datetime.now().strftime("%b %d %Y - %H:%M:%S.%f"))
 z = 10
 
@@ -13,7 +15,8 @@ for number in numbers:
 for x in range(0, 3):
     print("We are on time %d" % (x) + " test " + str(x))
 
-print(pop + " " + str(z))
+print(''.join(filter(lambda x: x in string.printable, pop)))
+
 
 
 class ABC:
