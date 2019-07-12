@@ -3,6 +3,10 @@ import requests
 from datetime import datetime
 from bs4 import BeautifulSoup
 import pyodbc
+import yagmail
+import pandas as pd
+import glob
+import os
 # Connecting to SQL server
 conn = pyodbc.connect('Driver={SQL Server};'
                       'Server=jackson;'
@@ -10,12 +14,18 @@ conn = pyodbc.connect('Driver={SQL Server};'
                       'Trusted_Connection=yes;')
 cursor = conn.cursor()
 
+# Opening file with the keywords. Way these are written is Query:SheetName
+# Creation of Lists to be Used Later
+queries = []
+sheets = []
+dataFrames = []
+dfForCount = []
+
 
 # Function that will simply truncate the table through python
 # - mainly to make life easier
 def truncateSQL(tableName):
     cursor.execute('truncate table ' + tableName)
-
 
 # Given a file, it will execute any .sql files.
 def executeScriptsFromFile(filename):
@@ -79,7 +89,7 @@ def findLastJob(tableName):
 # Function takes in the name of the site we are scraping and the page number we
 # are looking at. The urls will have to be hard coded, but doing it in a
 # function will allow it to be modular. Returns the finished url to work with.
-def getURL(site, startingNumber, category):
+def getURL(site, startingNumber):
     if(site == 'NYSCR'):
         urlFromFunction = 'https://www.nyscr.ny.gov/adsOpen.cfm?startnum=' + startingNumber + '&orderBy=55&numPer=50&myAdsOnly=2&adClass=b&adCat=&adCounty=&adType=&mbe=0&wbe=0&dbe=0&keyword='
     elif(site == 'DASNY'):
@@ -87,7 +97,7 @@ def getURL(site, startingNumber, category):
     elif(site == 'GOVUK'):
         urlFromFunction = 'https://www.contractsfinder.service.gov.uk/Search/Results?&page='+ startingNumber + '#dashboard_notices'
     elif(site == 'RFPDB'):
-        urlFromFunction = 'http://www.rfpdb.com/view/category/name/'+ category + '/page/' + startingNumber
+        urlFromFunction = 'http://www.rfpdb.com/view/category/name/technology/page/' + startingNumber
     return urlFromFunction
 
 
@@ -96,8 +106,8 @@ def getURL(site, startingNumber, category):
 # the information you need. Inputs are the url, the page number you want to
 # scrape, how the object is defined and what the class name is. Should work for
 # every type of site.
-def getContainers(site, startingNumber, HTMLobject, className, category):
-    url = getURL(site, startingNumber, category)
+def getContainers(site, startingNumber, HTMLobject, className):
+    url = getURL(site, startingNumber)
     # Just connecting to the website
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
@@ -230,8 +240,8 @@ def searchAndUpload(container, labelHTML, resultHTML, titleHTML, labelDef,
     # For every job insert the time it was scraped
     insertIntoSQL(databaseName, jobNumber, 'dateInserted:',
                   datetime.now().strftime('%m/%d/%Y %H:%M:%S'), site)
-    
-    
+
+
 # The function that does all the work. Site is the specific site to analyze,
 # database is the database you want to insert into, labelHTML, resultHTML, and
 # containerHTML are the kind of HTML element these objects are, their defs are
@@ -241,6 +251,8 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
                jobsPerPage):
     # Get table names
     databases = getDatabase(site)
+    # Optional, clear the database
+    truncateSQL(databases[0])
     # Finds last job number in database and adds one
     jobNumber = findLastJob(databases[0])+1
     # Start num is an array of urls
@@ -250,7 +262,7 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
     for start in startNum:
         # The job_containers is the HTML element that encompases every job.
         # Allows us to run multiple containers
-        job_containers = getContainers(site, start, containerHTML, containerDef, labelHTML)
+        job_containers = getContainers(site, start, containerHTML, containerDef)
         # A for loop that goes through all of the containers and extracts the
         # info from the specific job. The way this is done will differ for each
         # website
@@ -264,6 +276,107 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
             jobNumber += 1
         print('Scraped: ' + site + " - Page " + start)
     print(site + ' Completed')
+
+
+# Function that goes through text file and stores queries and sheets into
+# seperate lists.
+def splitKeyWordFile():
+    keywordFile = open("C:/Users/whunter/Documents/GitHub/AM-Automated-Oppurtinity-Capture/SQL-Python Keywords Queries.txt", "r")
+    lines = keywordFile.readlines()
+    for line in lines:
+        splitList = line.split(':')
+        queries.append(splitList[0])
+        sheets.append(splitList[1])
+
+
+# Creates data frames from the queries that we gave it and stores these in list
+def loadDataFrames():
+    for query in queries:
+        dataFrames.append(pd.read_sql_query(query, conn))
+
+
+# For the queries that use LIKE creates dataframes that isolate the new ones so
+# we can count the new jobs.
+def loadCountingFrames():
+    for num in range(3, len(dataFrames)):
+        dfForCount.append(dataFrames[num][dataFrames[num]['Status'] == 'New'])
+
+
+# Given a writer, turns all of the data frames into the excel spreadsheet with
+# the name of sheetnames stored from the text file
+def writeToExcel(writer):
+    for num in range(0, len(dataFrames)):
+        dataFrames[num].to_excel(writer, sheet_name=sheets[num])
+        print('Loaded: ' + sheets[num])
+
+
+# Master function for storing in Excel Sheet
+def queryToExcelSheet():
+    splitKeyWordFile()
+    loadDataFrames()
+    loadCountingFrames()
+    with pd.ExcelWriter(r'C:\Users\whunter\Documents\GitHub\AM-Automated'
+                        + '-Oppurtinity-Capture\Excel Sheets\Results_'
+                        + datetime.now().strftime('%m-%d-%Y#%H%M')
+                        + '.xlsx') as writer:
+        writeToExcel(writer)
+
+    with pd.ExcelWriter(r'C:\Users\whunter\Box\OppHunter\OppHunterResults.xlsx') as writer:
+        writeToExcel(writer)
+
+
+# One function to send email
+def sendEmail():
+    # Opening Local Email Text File to retrieve information. Then stores
+    # sensative information in variables.
+
+    file = open("C:/Users/whunter/Documents/Email Information.txt", "r")
+    lines = file.readlines()
+    senderEmail = lines[1]
+    password = lines[3]
+    listAddresses = lines[4:]
+    list_of_reports = glob.glob(r'C:\Users\whunter\Documents\GitHub\AM-Automated'
+                                + '-Oppurtinity-Capture\Excel Sheets\*')
+    latest_report = max(list_of_reports, key=os.path.getctime)
+    subject = 'Opportunity Hunter Daily Update'
+    # Stores string variables to be used in email.
+    subject = 'Opportunity Hunter Daily Update'
+    body = 'Hello,\n\nThis is the daily Opportunity Hunter Report. Click the link to access the Excel Report.'
+    # Update message to add on to the email to inform the team
+    update = ('')
+    # HTML code for the email, str(dataFrame[X].count(axis=0)[0]) is the count
+    # of the rows in each table.
+    html = ('<br><a href="https://alvarezandmarsal.box.com/s/hpchnqin29htdjpv0af8oyseilxl6vqc">Opportunity Hunter Report</a><br><br>' +
+            '<p>Consider the table below for a quick update of the status of the table. <br>' +
+            'Please respond to this email if you have any issues, or want to add any keywords. Please do not leave the table open for too long, as it needs to be closed everywhere for it to be updated.</p>' +
+            '<table><tr><th></th><th>Newly Added</th><th>Current Table<th>Master Table</th><th>Data Related</th><th>Tech Related</th><th>Law Related</th><th>Finance Related</th></tr>' +
+            '<tr><td>New Additions</td><td align="center">'
+            + str(dataFrames[0].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[0].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[0].count(axis=0)[0])
+            + '</td><td align="center">' + str(dfForCount[0].count(axis=0)[0])
+            + '</td><td align="center">' + str(dfForCount[1].count(axis=0)[0])
+            + '</td><td align="center">' + str(dfForCount[2].count(axis=0)[0])
+            + '</td><td align="center">' + str(dfForCount[3].count(axis=0)[0])
+            + '</td></tr>' + '<tr><td>Total Jobs</td><td align="center">'
+            + str(dataFrames[0].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[1].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[2].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[3].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[4].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[5].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[6].count(axis=0)[0])
+            + '<br></td></tr></table><p>' + update
+            + '</p><br><br><p>Thank You.</p>'
+            )
+    print('Attachments Loaded. Connecting to Server.')
+    # Connecting to server
+    yag = yagmail.SMTP(senderEmail, password)
+    # Sends email.
+    yag.send(to=listAddresses, subject=subject, contents=[body, html, latest_report])
+    print('Email Sent.')
+
+
 scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
            'tr', 'r1', '', '', 2, 50)
 scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
@@ -271,14 +384,14 @@ scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
             2, 10)
 scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
            'div', 'search-result', 'div', 'search-result-header', 50, 20)
-
-for index, row in RFPDBCategories.iterrows():
-    scrapeSite('RFPDB', row["category"], '', '', '',
-               '', '', '', 'a', row["pageNumbers"], 12)
-    print('RFPDB - ' + row["category"] + ' - completed.')
+scrapeSite('RFPDB', '', '', '', '', '', '', 'a', '', 20, 12)
 print('All sites scraped.')
 executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\cleanRawSQL.sql")
 print('All tables cleaned.')
+executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
+print('Master SQL Function Complete.')
+queryToExcelSheet()
+sendEmail()
 print('Master Function Complete.')
 cursor.close()
 conn.close()
