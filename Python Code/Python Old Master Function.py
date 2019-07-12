@@ -305,11 +305,7 @@ def loadCountingFrames():
 # Given a writer, turns all of the data frames into the excel spreadsheet with
 # the name of sheetnames stored from the text file
 def writeToExcel(writer):
-    # print(sheets)
-    # print(writer)
     for num in range(0, len(dataFrames)):
-        # print(sheets[num])
-        # print(dataFrames[num])
         dataFrames[num].to_excel(writer, sheet_name=sheets[num])
         print('Loaded: ' + sheets[num])
 
@@ -324,7 +320,6 @@ def queryToExcelSheet():
                         + datetime.now().strftime('%m-%d-%Y#%H%M')
                         + '.xlsx') as writer:
         writeToExcel(writer)
-
 
     with pd.ExcelWriter(r'C:\Users\whunter\Box\OppHunter\OppHunterResults.xlsx') as writer:
         writeToExcel(writer)
@@ -346,9 +341,9 @@ def sendEmail():
     subject = 'Opportunity Hunter Daily Update'
     # Stores string variables to be used in email.
     subject = 'Opportunity Hunter Daily Update'
-    body = 'Hello,\n\nThis is the Daily Opportunity Hunter Report. Click the link to access the Excel Report.'
+    body = 'Hello,\n\nThis is the daily Opportunity Hunter Report. Click the link to access the Excel Report.'
     # Update message to add on to the email to inform the team
-    update = ('This one is a test. There was a bug but hopefully now we are ok.')
+    update = ('')
     # HTML code for the email, str(dataFrame[X].count(axis=0)[0]) is the count
     # of the rows in each table.
     html = ('<br><a href="https://alvarezandmarsal.box.com/s/hpchnqin29htdjpv0af8oyseilxl6vqc">Opportunity Hunter Report</a><br><br>' +
@@ -382,19 +377,19 @@ def sendEmail():
     print('Email Sent.')
 
 
-scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
-           'tr', 'r1', '', '', 2, 50)
-scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
-           'div', 'views-field views-field-nothing-1', 'div', 'rfp-bid-title',
-            2, 10)
-scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
-           'div', 'search-result', 'div', 'search-result-header', 50, 20)
-scrapeSite('RFPDB', '', '', '', '', '', '', 'a', '', 20, 12)
-print('All sites scraped.')
-executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\cleanRawSQL.sql")
-print('All tables cleaned.')
-executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
-print('Master SQL Function Complete.')
+# scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
+#            'tr', 'r1', '', '', 2, 50)
+# scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
+#            'div', 'views-field views-field-nothing-1', 'div', 'rfp-bid-title',
+#             2, 10)
+# scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
+#            'div', 'search-result', 'div', 'search-result-header', 50, 20)
+# scrapeSite('RFPDB', '', '', '', '', '', '', 'a', '', 20, 12)
+# print('All sites scraped.')
+# executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\cleanRawSQL.sql")
+# print('All tables cleaned.')
+# executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
+# print('Master SQL Function Complete.')
 queryToExcelSheet()
 sendEmail()
 print('Master Function Complete.')
