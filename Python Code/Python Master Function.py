@@ -1,3 +1,5 @@
+# TO-DO Implement dictionaries
+
 # Important imports
 import requests
 from datetime import datetime
