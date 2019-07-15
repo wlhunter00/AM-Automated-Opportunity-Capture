@@ -348,7 +348,7 @@ def sendEmail():
     subject = 'Opportunity Hunter Daily Update'
     body = 'Hello,\n\nThis is the Daily Opportunity Hunter Report. Click the link to access the Excel Report.'
     # Update message to add on to the email to inform the team
-    update = ('This hopefully is being sent over the weekend.')
+    update = ('')
     # HTML code for the email, str(dataFrame[X].count(axis=0)[0]) is the count
     # of the rows in each table.
     html = ('<br><a href="https://alvarezandmarsal.box.com/s/hpchnqin29htdjpv0af8oyseilxl6vqc">Opportunity Hunter Report</a><br><br>' +
