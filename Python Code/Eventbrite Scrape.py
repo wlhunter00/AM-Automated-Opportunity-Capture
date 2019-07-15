@@ -1,17 +1,6 @@
 import requests
 import string
 
-# categories = []
-# for i in range(1, 5):
-#     requestParam = {"page": i, "token": "4DYO5EC3JABSP5NVOGOX"}
-#     request = requests.get('https://www.eventbriteapi.com/v3/subcategories', requestParam)
-#     requestJSON = request.json()
-#     print(request.status_code)
-#     for i in requestJSON['subcategories']:
-#         categories.append(i['name'] + ': ' + i['id'])
-# for yeet in categories:
-#     print(yeet)
-
 eventParam = {"categories": "101", "location.address": "NewYork",
               "location.within": "8mi", "expand": "venue",
               "page": "48", "token": "4DYO5EC3JABSP5NVOGOX"}
