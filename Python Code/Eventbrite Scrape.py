@@ -1,3 +1,5 @@
+# Other categories need to be scraped
+
 import requests
 import string
 import pyodbc
