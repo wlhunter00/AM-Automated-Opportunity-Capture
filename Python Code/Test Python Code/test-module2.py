@@ -1,3 +1,13 @@
-test = input("yeet")
+import string
 
-print(test)
+test = "Crear unaidea de negocio que funcione"
+
+
+def parseASCII(text):
+    if(text is not None):
+        return ''.join(filter(lambda x: x in string.printable, text)).replace('', '')
+    else:
+        return ''
+
+
+print(parseASCII(test))

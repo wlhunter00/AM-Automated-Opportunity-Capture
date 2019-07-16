@@ -44,7 +44,7 @@ def removeEscape(text):
 # Gets rid of non ascii characters in string
 def parseASCII(text):
     if(text is not None):
-        return ''.join(filter(lambda x: x in string.printable, text))
+        return ''.join(filter(lambda x: x in string.printable, text)).replace('', '')
     else:
         return ''
 
@@ -368,7 +368,7 @@ def loadDataFrames():
 # For the queries that use LIKE creates dataframes that isolate the new ones so
 # we can count the new jobs.
 def loadCountingFrames():
-    for num in range(3, len(dataFrames)):
+    for num in range(6, len(dataFrames)):
         dfForCount.append(dataFrames[num][dataFrames[num]['Status'] == 'New'])
 
 
@@ -465,7 +465,7 @@ print('All tables cleaned.')
 executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
 print('Master SQL Function Complete.')
 queryToExcelSheet()
-sendEmail()
+# sendEmail()
 print('Master Function Complete.')
 cursor.close()
 conn.close()

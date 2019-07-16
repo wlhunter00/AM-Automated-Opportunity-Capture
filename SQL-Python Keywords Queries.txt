@@ -1,7 +1,10 @@
-select * from current_table where status = 'new':newly_added
-select * from current_table:current_table
-select * from master_table:master_table
-select * from current_table where JobDescription like '%data%':data_related
-select * from current_table where JobDescription like '%tech%':tech_related
-select * from current_table where JobDescription like '%legal%' or JobDescription like '%law%':law_related
-select * from current_table where JobDescription like '%financ%':finance_related
+select * from current_table where status = 'new':newly_added_jobs
+select * from event_current_table where recent = 'Old':newly_added_events
+select * from current_table:jobs_current_table
+select * from event_current_table:events_current_table
+select * from master_table:jobs_master_table
+select * from event_master_table:events_master_table
+select * from current_table where JobDescription like '%data%':data_related_jobs
+select * from current_table where JobDescription like '%tech%':tech_related_jobs
+select * from current_table where JobDescription like '%legal%' or JobDescription like '%law%':law_related_jobs
+select * from current_table where JobDescription like '%financ%':finance_related_jobs
