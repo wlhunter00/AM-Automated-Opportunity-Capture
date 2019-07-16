@@ -1,4 +1,6 @@
-# TO-DO Implement dictionaries, Merge Eventbrite
+# TODO: Implement dictionaries, Merge Eventbrite, use str.format(variable) instead of string + string.
+# for the format its "this is a {0}".format("variable"),
+# Use if true: intead of if variable == true, look at what is being looped-and if it has to be.
 
 # Important imports
 import requests
@@ -280,7 +282,8 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
     for start in startNum:
         # The job_containers is the HTML element that encompases every job.
         # Allows us to run multiple containers
-        job_containers = getContainers(site, start, containerHTML, containerDef, labelHTML)
+        job_containers = getContainers(site, start, containerHTML,
+                                       containerDef, labelHTML)
         # A for loop that goes through all of the containers and extracts the
         # info from the specific job. The way this is done will differ for each
         # website
@@ -294,6 +297,55 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
             jobNumber += 1
         print('Scraped: ' + site + " - Page " + start)
     print(site + ' Completed')
+
+
+# Scrapes eventbrite's API and sends data to SQL
+def scrapeEventbrite():
+    # Array of categories to go through
+    categoriesToScrap = ["101", "102", "112"]
+
+    # loop through all the categories
+    for category in categoriesToScrap:
+        # Obtaining the JSON of the details of the category to know how many pages
+        pageNumParam = {"categories": category, "location.address": "NewYork",
+                      "location.within": "8mi", "token": "4DYO5EC3JABSP5NVOGOX"}
+        pagenumJSON = requests.get('https://www.eventbriteapi.com/v3/events/search',
+                                   pageNumParam).json()
+        numPages = int(pagenumJSON['pagination']['page_count'])
+        # Setting the category to a word for SQL
+        if(category == "101"):
+            stringCategory = "Business"
+        elif(category == "102"):
+            stringCategory = "Technology"
+        elif(category == "112"):
+            stringCategory = "Government"
+        # Pass through all the pages in category
+        for pageNumber in range(1, numPages):
+            # Retrieving details from API
+            eventParam = {"categories": category, "location.address": "NewYork",
+                          "location.within": "8mi", "expand": "venue",
+                          "page": pageNumber, "token": "4DYO5EC3JABSP5NVOGOX"}
+            eventJSON = requests.get('https://www.eventbriteapi.com/v3/events/search',
+                                     eventParam).json()
+            # Run through each event on the page
+            for i in eventJSON['events']:
+                # inserting the data into SQL
+                cursor.execute('INSERT into eventBrite_raw (Title, shortSummary, longSummary, '
+                               + 'URL, eventStart, eventEnd, publishDate, status, onlineEvent, insertDate, category, address) VALUES (\''
+                               + removeEscape(parseASCII(i['name']['text'])) + '\', \''
+                               + removeEscape(parseASCII(i['summary'])) + '\',  \''
+                               + removeEscape(parseASCII(i['description']['text'])) + '\', \''
+                               + removeEscape(i['url']) + '\', \''
+                               + i['start']['local'] + '\', \''
+                               + i['end']['local'] + '\', \''
+                               + i['changed'][0: i['published'].find('Z')] + '\',  \''
+                               + i['status'] + '\', \''
+                               + str(i['online_event']) + '\', \''
+                               + datetime.now().strftime('%m/%d/%Y %H:%M:%S') + '\', \''
+                               + stringCategory + '\', \''
+                               + removeEscape(parseASCII(i['venue']['address']['localized_address_display'])) + '\')')
+                conn.commit()
+            print('Eventbrite page parsed: ' + category + ' page ' + str(pageNumber))
 
 
 # Function that goes through text file and stores queries and sheets into
@@ -406,6 +458,7 @@ for index, row in RFPDBCategories.iterrows():
     scrapeSite('RFPDB', row["category"], '', '', '',
                '', '', 'a', '', row["pageNumbers"], 12)
     print('RFPDB - ' + row["category"] + ' - completed.')
+scrapeEventbrite()
 print('All sites scraped.')
 executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\cleanRawSQL.sql")
 print('All tables cleaned.')

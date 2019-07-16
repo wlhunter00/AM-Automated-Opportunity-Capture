@@ -11,12 +11,7 @@ update event_master_table set Expired = 'Yes' where eventEnd < GETDATE();
 delete from event_current_table where eventEnd < getdate();
 update event_current_table set recent = 'Old';
 
---delete from event_master_table where eventID not in(
---select max(eventID) from event_master_table group by Title);
-
 insert into event_current_table(title, shortSummary, URL, eventStart, eventEnd, publishDate, insertDate, address, category, site, recent, masterTableID)
 select distinct Title, shortSummary, URL, eventStart, eventEnd, publishDate, insertDate, address, category, site, 'New', eventID
 from event_master_table
 WHERE event_master_table.Title not in(select Title from event_current_table) and event_master_table.eventEnd > GETDATE();
-
-select * from event_current_table;

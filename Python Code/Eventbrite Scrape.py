@@ -24,6 +24,7 @@ def parseASCII(text):
         return ''
 
 
+# Scrapes eventbrite's API and sends data to SQL
 def scrapeEventbrite():
     # Array of categories to go through
     categoriesToScrap = ["101", "102", "112"]
@@ -69,7 +70,7 @@ def scrapeEventbrite():
                                + stringCategory + '\', \''
                                + removeEscape(parseASCII(i['venue']['address']['localized_address_display'])) + '\')')
                 conn.commit()
-            print('Page parsed: ' + category + ' page ' + str(pageNumber))
+            print('Eventbrite page parsed: ' + category + ' page ' + str(pageNumber))
 
 
 scrapeEventbrite()
