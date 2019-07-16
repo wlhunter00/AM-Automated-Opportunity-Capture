@@ -34,6 +34,19 @@ def truncateSQL(tableName):
     cursor.execute('truncate table ' + tableName)
 
 
+# Removes escape characters
+def removeEscape(text):
+    return text.replace('\'', '\'\'')
+
+
+# Gets rid of non ascii characters in string
+def parseASCII(text):
+    if(text is not None):
+        return ''.join(filter(lambda x: x in string.printable, text))
+    else:
+        return ''
+
+
 # Given a file, it will execute any .sql files.
 def executeScriptsFromFile(filename):
     # Open and read the file as a single buffer
@@ -175,9 +188,9 @@ def listScrape(container, site, type):
 def insertIntoSQL(databaseName, jobNumber, label, result, site):
     cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, '
                    + 'resultText, website) VALUES (\''
-                   + str(jobNumber).replace('\'', '\'\'') + '\', \''
-                   + ''.join(filter(lambda x: x in string.printable, label)).replace('\'', '\'\'') + '\',  \''
-                   + ''.join(filter(lambda x: x in string.printable, result)).replace('\'', '\'\'') + '\',  \''
+                   + removeEscape(str(jobNumber)) + '\', \''
+                   + removeEscape(parseASCII(label)) + '\',  \''
+                   + removeEscape(parseASCII(result)) + '\',  \''
                    + site + '\')')
     conn.commit()
 
