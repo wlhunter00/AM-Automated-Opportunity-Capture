@@ -310,13 +310,12 @@ def loadCountingFrames():
 # Given a writer, turns all of the data frames into the excel spreadsheet with
 # the name of sheetnames stored from the text file
 def writeToExcel(writer):
-    print(dataFrames[0].loc[3])
     for num in range(0, len(dataFrames)):
         dataFrames[num].to_excel(writer, sheet_name=sheets[num])
         print('Loaded: ' + sheets[num])
 
 
-# Master function for storing in Excel Sheet
+# Master function for storing in Excel Sheets
 def queryToExcelSheet():
     splitKeyWordFile()
     loadDataFrames()
