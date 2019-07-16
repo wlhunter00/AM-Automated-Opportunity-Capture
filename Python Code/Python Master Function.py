@@ -1,4 +1,4 @@
-# TO-DO Implement dictionaries
+# TO-DO Implement dictionaries, Merge Eventbrite
 
 # Important imports
 import requests
