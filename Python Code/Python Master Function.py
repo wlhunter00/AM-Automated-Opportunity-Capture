@@ -119,7 +119,7 @@ def getURL(site, startingNumber, category):
     elif(site == 'GOVUK'):
         urlFromFunction = 'https://www.contractsfinder.service.gov.uk/Search/Results?&page='+ startingNumber + '#dashboard_notices'
     elif(site == 'RFPDB'):
-        urlFromFunction = 'http://www.rfpdb.com/view/category/name/'+ category + '/page/' + startingNumber
+        urlFromFunction = 'http://www.rfpdb.com/view/category/name/'+ category+ '/page/' + startingNumber
     return urlFromFunction
 
 
