@@ -79,6 +79,8 @@ update current_table set Status = 'Old';
 delete from master_table where jobID not in(
 select max(jobID) from master_table group by JobDescription);
 
+update master_table set jobDescription = substring(jobDescription, 0, 300) where len(jobDescription) > 300;
+
 INSERT INTO current_table (JobDescription, Website, Company, DueDate, IssueDate, InsertDate, RequestType, JobURL, JobLocation, Category, Status, masterJobId)
 SELECT distinct JobDescription, Website, Company, DueDate, IssueDate, InsertDate, RequestType, JobURL, JobLocation, Category, 'New', master_table.JobID
 FROM master_table
