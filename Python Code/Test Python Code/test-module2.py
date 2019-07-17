@@ -13,3 +13,9 @@ def parseASCII(text):
 print(parseASCII(test))
 for num in range(6, 8):
     print(num)
+
+yeet1 = "right here"
+yeet2 = "test"
+yeet = "this {0} is a {1} string ".format(yeet1, yeet2)
+
+print(yeet)
