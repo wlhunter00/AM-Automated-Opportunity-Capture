@@ -109,3 +109,4 @@ insert into event_current_table(title, shortSummary, URL, eventStart, eventEnd, 
 select distinct Title, shortSummary, URL, eventStart, eventEnd, publishDate, insertDate, address, category, site, 'New', eventID
 from event_master_table
 WHERE event_master_table.Title not in(select Title from event_current_table) and event_master_table.eventEnd > GETDATE();
+
