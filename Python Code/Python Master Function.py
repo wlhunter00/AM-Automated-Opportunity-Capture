@@ -33,7 +33,7 @@ dfForCount = []
 # Function that will simply truncate the table through python
 # - mainly to make life easier
 def truncateSQL(tableName):
-    cursor.execute('truncate table ' + tableName)
+    cursor.execute('truncate table {0}'.format(tableName))
 
 
 # Removes escape characters
@@ -67,9 +67,9 @@ def executeScriptsFromFile(filename):
         try:
             cursor.execute(command)
             conn.commit()
-            print(str(command) + " excecuted.")
+            print("{0} excecuted.".format(str(command)))
         except:
-            print("Command skipped: " + str(command))
+            print("Command skipped: {0}".format(str(command)))
 
 
 # Pass in the number of pages you want to scrape and the amount of jobs you
@@ -95,7 +95,7 @@ def calculatePageNumber(numberOfPages, jobsPerPage, site):
 # look at the table and find the last job inserted- allows for tables to be
 # extended instead of overwritten each time
 def findLastJob(tableName):
-    cursor.execute('select max(jobID) from ' + tableName)
+    cursor.execute('select max(jobID) from {0}'.format(tableName))
     columnMessage = str(cursor.fetchall()[0])
     if(columnMessage == '(None, )'):
         return 0
@@ -113,13 +113,13 @@ def findLastJob(tableName):
 # function will allow it to be modular. Returns the finished url to work with.
 def getURL(site, startingNumber, category):
     if(site == 'NYSCR'):
-        urlFromFunction = 'https://www.nyscr.ny.gov/adsOpen.cfm?startnum=' + startingNumber + '&orderBy=55&numPer=50&myAdsOnly=2&adClass=b&adCat=&adCounty=&adType=&mbe=0&wbe=0&dbe=0&keyword='
+        urlFromFunction = 'https://www.nyscr.ny.gov/adsOpen.cfm?startnum={0}&orderBy=55&numPer=50&myAdsOnly=2&adClass=b&adCat=&adCounty=&adType=&mbe=0&wbe=0&dbe=0&keyword='.format(startingNumber)
     elif(site == 'DASNY'):
-        urlFromFunction = 'https://www.dasny.org/opportunities/rfps-bids?field_solicitation_classificatio_target_id=All&field_solicitation_type_target_id=All&field_goals_target_id=All&field_set_aside_target_id=All&query=&page=' + startingNumber
+        urlFromFunction = 'https://www.dasny.org/opportunities/rfps-bids?field_solicitation_classificatio_target_id=All&field_solicitation_type_target_id=All&field_goals_target_id=All&field_set_aside_target_id=All&query=&page={0}'.format(startingNumber)
     elif(site == 'GOVUK'):
-        urlFromFunction = 'https://www.contractsfinder.service.gov.uk/Search/Results?&page='+ startingNumber + '#dashboard_notices'
+        urlFromFunction = 'https://www.contractsfinder.service.gov.uk/Search/Results?&page={0}#dashboard_notices'.format(startingNumber)
     elif(site == 'RFPDB'):
-        urlFromFunction = 'http://www.rfpdb.com/view/category/name/'+ category + '/page/' + startingNumber
+        urlFromFunction = 'http://www.rfpdb.com/view/category/name/{0}/page/{1}'.format(category, startingNumber)
     return urlFromFunction
 
 
@@ -188,12 +188,11 @@ def listScrape(container, site, type):
 # the correct format, and then commit the command. We want to replace the back-
 # slashes because of python viewing it as an escape character.
 def insertIntoSQL(databaseName, jobNumber, label, result, site):
-    cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, '
-                   + 'resultText, website) VALUES (\''
-                   + removeEscape(str(jobNumber)) + '\', \''
-                   + removeEscape(parseASCII(label)) + '\',  \''
-                   + removeEscape(parseASCII(result)) + '\',  \''
-                   + site + '\')')
+    cursor.execute("""INSERT into {0} (jobID, labelText, resultText, website) \
+    VALUES (\'{1}\', \'{2}\',  \'{3}\',  \'{4}\'
+    )""".format(databaseName, removeEscape(str(jobNumber)),
+                removeEscape(parseASCII(label)),
+                removeEscape(parseASCII(result)), site))
     conn.commit()
 
 
@@ -238,9 +237,9 @@ def searchAndUpload(container, labelHTML, resultHTML, titleHTML, labelDef,
                           container_results[num], site)
     # Getting site and link based on the websites case.
     if(site == 'DASNY'):
-        link = 'https://www.dasny.org' + title.find('a')['href']
+        link = 'https://www.dasny.org{0}'.format(title.find('a')['href'])
     elif(site == 'RFPDB'):
-        link = 'http://www.rfpdb.com' + container.find('a')['href']
+        link = 'http://www.rfpdb.com{0}'.format(container.find('a')['href'])
     # With GOVUK we can also pull out the company and description doing hard
     # scraping and inserting it into table individually.
     elif(site == 'GOVUK'):
@@ -295,8 +294,8 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
                             jobNumber, start, site)
             # Incrase jobNumber as that is what is inserted into database
             jobNumber += 1
-        print('Scraped: ' + site + " - Page " + start)
-    print(site + ' Completed')
+        print('Scraped: {0} - Page {1}'.format(site, start))
+    print('{0} Completed'.format(site))
 
 
 # Scrapes eventbrite's API and sends data to SQL
@@ -330,28 +329,31 @@ def scrapeEventbrite():
             # Run through each event on the page
             for i in eventJSON['events']:
                 # inserting the data into SQL
-                cursor.execute('INSERT into eventBrite_raw (Title, shortSummary, longSummary, '
-                               + 'URL, eventStart, eventEnd, publishDate, status, onlineEvent, insertDate, category, address) VALUES (\''
-                               + removeEscape(parseASCII(i['name']['text'])) + '\', \''
-                               + removeEscape(parseASCII(i['summary'])) + '\',  \''
-                               + removeEscape(parseASCII(i['description']['text'])) + '\', \''
-                               + removeEscape(i['url']) + '\', \''
-                               + i['start']['local'] + '\', \''
-                               + i['end']['local'] + '\', \''
-                               + i['changed'][0: i['published'].find('Z')] + '\',  \''
-                               + i['status'] + '\', \''
-                               + str(i['online_event']) + '\', \''
-                               + datetime.now().strftime('%m/%d/%Y %H:%M:%S') + '\', \''
-                               + stringCategory + '\', \''
-                               + removeEscape(parseASCII(i['venue']['address']['localized_address_display'])) + '\')')
+                cursor.execute("""INSERT into eventBrite_raw (Title, \
+                shortSummary, longSummary, URL, eventStart, eventEnd, \
+                publishDate, status, onlineEvent, insertDate, category, \
+                address) VALUES (\'{0}\', \'{1}\',  \'{2}\', \'{3}\', \'{4}\'
+                , \'{5}\', \'{6}\',  \'{7}\', \'{8}\', \'{9}\', \'{10}\', \'{11}\'
+                )""".format(removeEscape(parseASCII(i['name']['text'])),
+                            removeEscape(parseASCII(i['summary'])),
+                            removeEscape(parseASCII(i['description']['text'])),
+                            removeEscape(i['url']),
+                            i['start']['local'],
+                            i['end']['local'], i['changed'][0: i['published'].find('Z')],
+                            i['status'],
+                            str(i['online_event']),
+                            datetime.now().strftime('%m/%d/%Y %H:%M:%S'),
+                            stringCategory,
+                            removeEscape(parseASCII(i['venue']['address']['localized_address_display']))))
                 conn.commit()
-            print('Eventbrite page parsed: ' + category + ' page ' + str(pageNumber))
+            print('Eventbrite page parsed: {0} page {1}'.format(category, str(pageNumber)) )
 
 
 # Function that goes through text file and stores queries and sheets into
 # seperate lists.
 def splitKeyWordFile():
-    keywordFile = open("C:/Users/whunter/Documents/GitHub/AM-Automated-Oppurtinity-Capture/SQL-Python Keywords Queries.txt", "r")
+    keywordFile = open(('C:/Users/whunter/Documents/GitHub/AM-Automated-'
+                        'Oppurtinity-Capture/SQL-Python Keywords Queries.txt'), "r")
     lines = keywordFile.readlines()
     for line in lines:
         splitList = line.split(':')
@@ -381,17 +383,14 @@ def loadCountingFrames():
 def writeToExcel(writer):
     for num in range(0, len(dataFrames)):
         dataFrames[num].to_excel(writer, sheet_name=sheets[num])
-        print('Loaded: ' + sheets[num])
+        print('Loaded: {0}'.format(sheets[num]))
 
 
 # Master function for storing in Excel Sheets
 def queryToExcelSheet():
     splitKeyWordFile()
     loadDataFrames()
-    with pd.ExcelWriter(r'C:\Users\whunter\Documents\GitHub\AM-Automated'
-                        + '-Oppurtinity-Capture\Excel Sheets\Results_'
-                        + datetime.now().strftime('%m-%d-%Y#%H%M')
-                        + '.xlsx') as writer:
+    with pd.ExcelWriter((r'C:\Users\whunter\Documents\GitHub\AM-Automated-Oppurtinity-Capture\Excel Sheets\Results_{0}.xlsx').format(datetime.now().strftime('%m-%d-%Y#%H%M'))) as writer:
         writeToExcel(writer)
     with pd.ExcelWriter(r'C:\Users\whunter\Box\OppHunter\OppHunterResults.xlsx') as writer:
         writeToExcel(writer)
@@ -402,13 +401,12 @@ def sendEmail():
     # Opening Local Email Text File to retrieve information. Then stores
     # sensative information in variables.
 
-    file = open("C:/Users/whunter/Documents/Email Information.txt", "r")
+    file = open(r"C:\Users\whunter\Documents\Email Information.txt", "r")
     lines = file.readlines()
     senderEmail = lines[1]
     password = lines[3]
     listAddresses = lines[4:]
-    list_of_reports = glob.glob(r'C:\Users\whunter\Documents\GitHub\AM-Automated'
-                                + '-Oppurtinity-Capture\Excel Sheets\*')
+    list_of_reports = glob.glob(r'C:\Users\whunter\Documents\GitHub\AM-Automated-Oppurtinity-Capture\Excel Sheets\*')
     latest_report = max(list_of_reports, key=os.path.getctime)
     subject = 'Opportunity Hunter Daily Update'
     # Stores string variables to be used in email.
@@ -418,11 +416,21 @@ def sendEmail():
     update = ('Events have been encorperated to the process.')
     # HTML code for the email, str(dataFrame[X].count(axis=0)[0]) is the count
     # of the rows in each table.
-    html = ('<br><a href="https://alvarezandmarsal.box.com/s/hpchnqin29htdjpv0af8oyseilxl6vqc">Opportunity Hunter Report</a><br><br>' +
-            '<p>Consider the table below for a quick update of the status of the table. <br>' +
-            'Please respond to this email if you have any issues, or want to add any keywords. Please do not leave the table open for too long, as it needs to be closed everywhere for it to be updated.</p>' +
-            '<table><tr><th></th><th>Newly Added Jobs</th><th>Newly Added Events</th><th>Jobs Current Table</th><th>Events Current Table</th><th>Events Networking Related</th><th>Events Data Related</th><th>Jobs Data Related</th><th>Jobs Tech Related</th><th>Jobs Finance Related</th></tr>' +
-            '<tr><td>New Additions</td><td align="center">'
+    bodyParagraph = ('<br><a href="https://alvarezandmarsal.box.com/s/hpchn'
+                     'qin29htdjpv0af8oyseilxl6vqc">Opportunity Hunter '
+                     'Report</a><br><br><p>Consider the table below for a '
+                     'quick update of the status of the table. <br>Please '
+                     'respond to this email if you have any issues, or want'
+                     ' to add any keywords. Please do not leave the table '
+                     'open for too long, as it needs to be closed '
+                     'everywhere for it to be updated.</p><table><tr><th></th>'
+                     '<th>Newly Added Jobs</th><th>Newly Added Events</th>'
+                     '<th>Jobs Current Table</th><th>Events Current Table</th>'
+                     '<th>Events Networking Related</th><th>Events Data Related</th>'
+                     '<th>Jobs Data Related</th><th>Jobs Tech Related</th>'
+                     '<th>Jobs Finance Related</th></tr>'
+                     '<tr><td>New Additions</td><td align="center">')
+    html = (bodyParagraph
             + str(dataFrames[0].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[1].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[0].count(axis=0)[0])
@@ -453,24 +461,24 @@ def sendEmail():
     print('Email Sent.')
 
 
-scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
-           'tr', 'r1', '', '', 2, 50)
-scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
-           'div', 'views-field views-field-nothing-1', 'div', 'rfp-bid-title',
-           2, 10)
-scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
-           'div', 'search-result', 'div', 'search-result-header', 50, 20)
-RFPDBCategories = pd.read_sql_query('select * from RFPDBCategories_tbl', conn)
-for index, row in RFPDBCategories.iterrows():
-    scrapeSite('RFPDB', row["category"], '', '', '',
-               '', '', 'a', '', row["pageNumbers"], 12)
-    print('RFPDB - ' + row["category"] + ' - completed.')
-scrapeEventbrite()
-print('All sites scraped.')
-executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\cleanRawSQL.sql")
-print('All tables cleaned.')
-executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
-print('Master SQL Function Complete.')
+# scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
+#            'tr', 'r1', '', '', 2, 50)
+# scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
+#            'div', 'views-field views-field-nothing-1', 'div', 'rfp-bid-title',
+#            2, 10)
+# scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
+#            'div', 'search-result', 'div', 'search-result-header', 50, 20)
+# RFPDBCategories = pd.read_sql_query('select * from RFPDBCategories_tbl', conn)
+# for index, row in RFPDBCategories.iterrows():
+#     scrapeSite('RFPDB', row["category"], '', '', '',
+#                '', '', 'a', '', row["pageNumbers"], 12)
+#     print('RFPDB - ' + row["category"] + ' - completed.')
+# scrapeEventbrite()
+# print('All sites scraped.')
+# executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\cleanRawSQL.sql")
+# print('All tables cleaned.')
+# executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
+# print('Master SQL Function Complete.')
 queryToExcelSheet()
 loadCountingFrames()
 sendEmail()
