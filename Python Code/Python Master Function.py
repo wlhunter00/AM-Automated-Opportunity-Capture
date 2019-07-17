@@ -1,4 +1,6 @@
-# TO-DO Implement dictionaries
+# TODO: Implement dictionaries, Merge Eventbrite, use str.format(variable) instead of string + string.
+# for the format its "this is a {0}".format("variable"),
+# look at what is being looped-and if it has to be.
 
 # Important imports
 import requests
@@ -32,6 +34,19 @@ dfForCount = []
 # - mainly to make life easier
 def truncateSQL(tableName):
     cursor.execute('truncate table ' + tableName)
+
+
+# Removes escape characters
+def removeEscape(text):
+    return text.replace('\'', '\'\'')
+
+
+# Gets rid of non ascii characters in string
+def parseASCII(text):
+    if text is not None:
+        return ''.join(filter(lambda x: x in string.printable, text)).replace('', '')
+    else:
+        return ''
 
 
 # Given a file, it will execute any .sql files.
@@ -175,9 +190,9 @@ def listScrape(container, site, type):
 def insertIntoSQL(databaseName, jobNumber, label, result, site):
     cursor.execute('INSERT into ' + databaseName + ' (jobID, labelText, '
                    + 'resultText, website) VALUES (\''
-                   + str(jobNumber).replace('\'', '\'\'') + '\', \''
-                   + ''.join(filter(lambda x: x in string.printable, label)).replace('\'', '\'\'') + '\',  \''
-                   + ''.join(filter(lambda x: x in string.printable, result)).replace('\'', '\'\'') + '\',  \''
+                   + removeEscape(str(jobNumber)) + '\', \''
+                   + removeEscape(parseASCII(label)) + '\',  \''
+                   + removeEscape(parseASCII(result)) + '\',  \''
                    + site + '\')')
     conn.commit()
 
@@ -267,7 +282,8 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
     for start in startNum:
         # The job_containers is the HTML element that encompases every job.
         # Allows us to run multiple containers
-        job_containers = getContainers(site, start, containerHTML, containerDef, labelHTML)
+        job_containers = getContainers(site, start, containerHTML,
+                                       containerDef, labelHTML)
         # A for loop that goes through all of the containers and extracts the
         # info from the specific job. The way this is done will differ for each
         # website
@@ -281,6 +297,55 @@ def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
             jobNumber += 1
         print('Scraped: ' + site + " - Page " + start)
     print(site + ' Completed')
+
+
+# Scrapes eventbrite's API and sends data to SQL
+def scrapeEventbrite():
+    # Array of categories to go through
+    categoriesToScrap = ["101", "102", "112"]
+
+    # loop through all the categories
+    for category in categoriesToScrap:
+        # Obtaining the JSON of the details of the category to know how many pages
+        pageNumParam = {"categories": category, "location.address": "NewYork",
+                      "location.within": "8mi", "token": "4DYO5EC3JABSP5NVOGOX"}
+        pagenumJSON = requests.get('https://www.eventbriteapi.com/v3/events/search',
+                                   pageNumParam).json()
+        numPages = int(pagenumJSON['pagination']['page_count'])
+        # Setting the category to a word for SQL
+        if(category == "101"):
+            stringCategory = "Business"
+        elif(category == "102"):
+            stringCategory = "Technology"
+        elif(category == "112"):
+            stringCategory = "Government"
+        # Pass through all the pages in category
+        for pageNumber in range(1, numPages):
+            # Retrieving details from API
+            eventParam = {"categories": category, "location.address": "NewYork",
+                          "location.within": "8mi", "expand": "venue",
+                          "page": pageNumber, "token": "4DYO5EC3JABSP5NVOGOX"}
+            eventJSON = requests.get('https://www.eventbriteapi.com/v3/events/search',
+                                     eventParam).json()
+            # Run through each event on the page
+            for i in eventJSON['events']:
+                # inserting the data into SQL
+                cursor.execute('INSERT into eventBrite_raw (Title, shortSummary, longSummary, '
+                               + 'URL, eventStart, eventEnd, publishDate, status, onlineEvent, insertDate, category, address) VALUES (\''
+                               + removeEscape(parseASCII(i['name']['text'])) + '\', \''
+                               + removeEscape(parseASCII(i['summary'])) + '\',  \''
+                               + removeEscape(parseASCII(i['description']['text'])) + '\', \''
+                               + removeEscape(i['url']) + '\', \''
+                               + i['start']['local'] + '\', \''
+                               + i['end']['local'] + '\', \''
+                               + i['changed'][0: i['published'].find('Z')] + '\',  \''
+                               + i['status'] + '\', \''
+                               + str(i['online_event']) + '\', \''
+                               + datetime.now().strftime('%m/%d/%Y %H:%M:%S') + '\', \''
+                               + stringCategory + '\', \''
+                               + removeEscape(parseASCII(i['venue']['address']['localized_address_display'])) + '\')')
+                conn.commit()
+            print('Eventbrite page parsed: ' + category + ' page ' + str(pageNumber))
 
 
 # Function that goes through text file and stores queries and sheets into
@@ -303,7 +368,11 @@ def loadDataFrames():
 # For the queries that use LIKE creates dataframes that isolate the new ones so
 # we can count the new jobs.
 def loadCountingFrames():
-    for num in range(3, len(dataFrames)):
+    # For the event queries
+    for num in range(6, 8):
+        dfForCount.append(dataFrames[num][dataFrames[num]['recent'] == 'New'])
+    # For the job queries
+    for num in range(8, len(dataFrames)):
         dfForCount.append(dataFrames[num][dataFrames[num]['Status'] == 'New'])
 
 
@@ -319,7 +388,6 @@ def writeToExcel(writer):
 def queryToExcelSheet():
     splitKeyWordFile()
     loadDataFrames()
-    loadCountingFrames()
     with pd.ExcelWriter(r'C:\Users\whunter\Documents\GitHub\AM-Automated'
                         + '-Oppurtinity-Capture\Excel Sheets\Results_'
                         + datetime.now().strftime('%m-%d-%Y#%H%M')
@@ -347,29 +415,33 @@ def sendEmail():
     subject = 'Opportunity Hunter Daily Update'
     body = 'Hello,\n\nThis is the Daily Opportunity Hunter Report. Click the link to access the Excel Report.'
     # Update message to add on to the email to inform the team
-    update = ('')
+    update = ('Events have been encorperated to the process.')
     # HTML code for the email, str(dataFrame[X].count(axis=0)[0]) is the count
     # of the rows in each table.
     html = ('<br><a href="https://alvarezandmarsal.box.com/s/hpchnqin29htdjpv0af8oyseilxl6vqc">Opportunity Hunter Report</a><br><br>' +
             '<p>Consider the table below for a quick update of the status of the table. <br>' +
             'Please respond to this email if you have any issues, or want to add any keywords. Please do not leave the table open for too long, as it needs to be closed everywhere for it to be updated.</p>' +
-            '<table><tr><th></th><th>Newly Added</th><th>Current Table<th>Master Table</th><th>Data Related</th><th>Tech Related</th><th>Law Related</th><th>Finance Related</th></tr>' +
+            '<table><tr><th></th><th>Newly Added Jobs</th><th>Newly Added Events</th><th>Jobs Current Table</th><th>Events Current Table</th><th>Events Networking Related</th><th>Events Data Related</th><th>Jobs Data Related</th><th>Jobs Tech Related</th><th>Jobs Finance Related</th></tr>' +
             '<tr><td>New Additions</td><td align="center">'
             + str(dataFrames[0].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[1].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[0].count(axis=0)[0])
-            + '</td><td align="center">' + str(dataFrames[0].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[1].count(axis=0)[0])
             + '</td><td align="center">' + str(dfForCount[0].count(axis=0)[0])
             + '</td><td align="center">' + str(dfForCount[1].count(axis=0)[0])
             + '</td><td align="center">' + str(dfForCount[2].count(axis=0)[0])
             + '</td><td align="center">' + str(dfForCount[3].count(axis=0)[0])
+            + '</td><td align="center">' + str(dfForCount[4].count(axis=0)[0])
             + '</td></tr>' + '<tr><td>Total Jobs</td><td align="center">'
             + str(dataFrames[0].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[1].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[2].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[3].count(axis=0)[0])
-            + '</td><td align="center">' + str(dataFrames[4].count(axis=0)[0])
-            + '</td><td align="center">' + str(dataFrames[5].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[6].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[7].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[8].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[9].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[10].count(axis=0)[0])
             + '<br></td></tr></table><p>' + update
             + '</p><br><br><p>Thank You.</p>'
             )
@@ -393,12 +465,14 @@ for index, row in RFPDBCategories.iterrows():
     scrapeSite('RFPDB', row["category"], '', '', '',
                '', '', 'a', '', row["pageNumbers"], 12)
     print('RFPDB - ' + row["category"] + ' - completed.')
+scrapeEventbrite()
 print('All sites scraped.')
 executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\cleanRawSQL.sql")
 print('All tables cleaned.')
 executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
 print('Master SQL Function Complete.')
 queryToExcelSheet()
+loadCountingFrames()
 sendEmail()
 print('Master Function Complete.')
 cursor.close()
