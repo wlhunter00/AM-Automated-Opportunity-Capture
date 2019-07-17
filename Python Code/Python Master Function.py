@@ -1,4 +1,5 @@
-# TODO: Implement dictionaries, Merge Eventbrite, use str.format(variable) instead of string + string.
+# TO-DO: Implement dictionaries, Merge Eventbrite, use str.format(variable)
+# instead of string + string.
 # for the format its "this is a {0}".format("variable"),
 # look at what is being looped-and if it has to be.
 
