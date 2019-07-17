@@ -11,3 +11,5 @@ def parseASCII(text):
 
 
 print(parseASCII(test))
+for num in range(6, 8):
+    print(num)

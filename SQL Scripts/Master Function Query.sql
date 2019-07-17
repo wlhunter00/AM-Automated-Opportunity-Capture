@@ -79,6 +79,8 @@ update current_table set Status = 'Old';
 delete from master_table where jobID not in(
 select max(jobID) from master_table group by JobDescription);
 
+update master_table set jobDescription = substring(jobDescription, 0, 300) where len(jobDescription) > 300;
+
 INSERT INTO current_table (JobDescription, Website, Company, DueDate, IssueDate, InsertDate, RequestType, JobURL, JobLocation, Category, Status, masterJobId)
 SELECT distinct JobDescription, Website, Company, DueDate, IssueDate, InsertDate, RequestType, JobURL, JobLocation, Category, 'New', master_table.JobID
 FROM master_table
@@ -100,6 +102,8 @@ update event_master_table set Expired = 'Yes' where eventEnd < GETDATE();
 
 delete from event_current_table where eventEnd < getdate();
 update event_current_table set recent = 'Old';
+
+update event_master_table set shortSummary = substring(shortSummary, 0, 300) where len(shortSummary) > 300;
 
 insert into event_current_table(title, shortSummary, URL, eventStart, eventEnd, publishDate, insertDate, address, category, site, recent, masterTableID)
 select distinct Title, shortSummary, URL, eventStart, eventEnd, publishDate, insertDate, address, category, site, 'New', eventID

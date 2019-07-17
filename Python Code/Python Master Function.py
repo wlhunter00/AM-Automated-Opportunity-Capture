@@ -1,6 +1,6 @@
 # TODO: Implement dictionaries, Merge Eventbrite, use str.format(variable) instead of string + string.
 # for the format its "this is a {0}".format("variable"),
-# Use if true: intead of if variable == true, look at what is being looped-and if it has to be.
+# look at what is being looped-and if it has to be.
 
 # Important imports
 import requests
@@ -43,7 +43,7 @@ def removeEscape(text):
 
 # Gets rid of non ascii characters in string
 def parseASCII(text):
-    if(text is not None):
+    if text is not None:
         return ''.join(filter(lambda x: x in string.printable, text)).replace('', '')
     else:
         return ''
@@ -368,7 +368,11 @@ def loadDataFrames():
 # For the queries that use LIKE creates dataframes that isolate the new ones so
 # we can count the new jobs.
 def loadCountingFrames():
-    for num in range(6, len(dataFrames)):
+    # For the event queries
+    for num in range(6, 8):
+        dfForCount.append(dataFrames[num][dataFrames[num]['recent'] == 'New'])
+    # For the job queries
+    for num in range(8, len(dataFrames)):
         dfForCount.append(dataFrames[num][dataFrames[num]['Status'] == 'New'])
 
 
@@ -384,7 +388,6 @@ def writeToExcel(writer):
 def queryToExcelSheet():
     splitKeyWordFile()
     loadDataFrames()
-    loadCountingFrames()
     with pd.ExcelWriter(r'C:\Users\whunter\Documents\GitHub\AM-Automated'
                         + '-Oppurtinity-Capture\Excel Sheets\Results_'
                         + datetime.now().strftime('%m-%d-%Y#%H%M')
@@ -412,29 +415,33 @@ def sendEmail():
     subject = 'Opportunity Hunter Daily Update'
     body = 'Hello,\n\nThis is the Daily Opportunity Hunter Report. Click the link to access the Excel Report.'
     # Update message to add on to the email to inform the team
-    update = ('')
+    update = ('Events have been encorperated to the process.')
     # HTML code for the email, str(dataFrame[X].count(axis=0)[0]) is the count
     # of the rows in each table.
     html = ('<br><a href="https://alvarezandmarsal.box.com/s/hpchnqin29htdjpv0af8oyseilxl6vqc">Opportunity Hunter Report</a><br><br>' +
             '<p>Consider the table below for a quick update of the status of the table. <br>' +
             'Please respond to this email if you have any issues, or want to add any keywords. Please do not leave the table open for too long, as it needs to be closed everywhere for it to be updated.</p>' +
-            '<table><tr><th></th><th>Newly Added</th><th>Current Table<th>Master Table</th><th>Data Related</th><th>Tech Related</th><th>Law Related</th><th>Finance Related</th></tr>' +
+            '<table><tr><th></th><th>Newly Added Jobs</th><th>Newly Added Events</th><th>Jobs Current Table</th><th>Events Current Table</th><th>Events Networking Related</th><th>Events Data Related</th><th>Jobs Data Related</th><th>Jobs Tech Related</th><th>Jobs Finance Related</th></tr>' +
             '<tr><td>New Additions</td><td align="center">'
             + str(dataFrames[0].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[1].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[0].count(axis=0)[0])
-            + '</td><td align="center">' + str(dataFrames[0].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[1].count(axis=0)[0])
             + '</td><td align="center">' + str(dfForCount[0].count(axis=0)[0])
             + '</td><td align="center">' + str(dfForCount[1].count(axis=0)[0])
             + '</td><td align="center">' + str(dfForCount[2].count(axis=0)[0])
             + '</td><td align="center">' + str(dfForCount[3].count(axis=0)[0])
+            + '</td><td align="center">' + str(dfForCount[4].count(axis=0)[0])
             + '</td></tr>' + '<tr><td>Total Jobs</td><td align="center">'
             + str(dataFrames[0].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[1].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[2].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[3].count(axis=0)[0])
-            + '</td><td align="center">' + str(dataFrames[4].count(axis=0)[0])
-            + '</td><td align="center">' + str(dataFrames[5].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[6].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[7].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[8].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[9].count(axis=0)[0])
+            + '</td><td align="center">' + str(dataFrames[10].count(axis=0)[0])
             + '<br></td></tr></table><p>' + update
             + '</p><br><br><p>Thank You.</p>'
             )
@@ -465,7 +472,8 @@ print('All tables cleaned.')
 executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
 print('Master SQL Function Complete.')
 queryToExcelSheet()
-# sendEmail()
+loadCountingFrames()
+sendEmail()
 print('Master Function Complete.')
 cursor.close()
 conn.close()
