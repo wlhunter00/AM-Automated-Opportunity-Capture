@@ -1,5 +1,4 @@
-# TODO: Implement dictionaries, Merge Eventbrite, use str.format(variable) instead of string + string.
-# for the format its "this is a {0}".format("variable"),
+# TODO: Implement dictionaries
 # look at what is being looped-and if it has to be.
 
 # Important imports
@@ -461,24 +460,24 @@ def sendEmail():
     print('Email Sent.')
 
 
-# scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
-#            'tr', 'r1', '', '', 2, 50)
-# scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
-#            'div', 'views-field views-field-nothing-1', 'div', 'rfp-bid-title',
-#            2, 10)
-# scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
-#            'div', 'search-result', 'div', 'search-result-header', 50, 20)
-# RFPDBCategories = pd.read_sql_query('select * from RFPDBCategories_tbl', conn)
-# for index, row in RFPDBCategories.iterrows():
-#     scrapeSite('RFPDB', row["category"], '', '', '',
-#                '', '', 'a', '', row["pageNumbers"], 12)
-#     print('RFPDB - ' + row["category"] + ' - completed.')
-# scrapeEventbrite()
-# print('All sites scraped.')
-# executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\cleanRawSQL.sql")
-# print('All tables cleaned.')
-# executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
-# print('Master SQL Function Complete.')
+scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
+           'tr', 'r1', '', '', 2, 50)
+scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
+           'div', 'views-field views-field-nothing-1', 'div', 'rfp-bid-title',
+           2, 10)
+scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
+           'div', 'search-result', 'div', 'search-result-header', 50, 20)
+RFPDBCategories = pd.read_sql_query('select * from RFPDBCategories_tbl', conn)
+for index, row in RFPDBCategories.iterrows():
+    scrapeSite('RFPDB', row["category"], '', '', '',
+               '', '', 'a', '', row["pageNumbers"], 12)
+    print('RFPDB - ' + row["category"] + ' - completed.')
+scrapeEventbrite()
+print('All sites scraped.')
+executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\cleanRawSQL.sql")
+print('All tables cleaned.')
+executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
+print('Master SQL Function Complete.')
 queryToExcelSheet()
 loadCountingFrames()
 sendEmail()
