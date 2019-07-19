@@ -1,4 +1,4 @@
-# TODO: Implement dictionaries
+# TO-DO: Implement dictionaries
 # look at what is being looped-and if it has to be.
 
 # Important imports
@@ -49,6 +49,7 @@ def parseASCII(text):
 
 
 # Given a file, it will execute any .sql files.
+# Update SQL tables
 def executeScriptsFromFile(filename):
     # Open and read the file as a single buffer
     fd = open(filename, 'r')
@@ -222,6 +223,7 @@ def searchAndUpload(container, labelHTML, resultHTML, titleHTML, labelDef,
         # If it has one tag we want to insert the item, then the sibiling items
         # found in the HTML.
         if(getScrapingCase(site) == 'OneTag'):
+            # Look to see if this is doing it correctly
             insertIntoSQL(databaseName, jobNumber,
                           container_labels[num].find(resultHTML, class_=resultDef).text,
                           container_labels[num].find(resultHTML, class_=resultDef).next_sibling,
@@ -258,6 +260,7 @@ def searchAndUpload(container, labelHTML, resultHTML, titleHTML, labelDef,
         insertIntoSQL(databaseName, jobNumber, 'URL:',
                       getURL(site, pageNumber, ''), site)
     # For every job insert the time it was scraped
+    # SQL mark the time it was inserted
     insertIntoSQL(databaseName, jobNumber, 'dateInserted:',
                   datetime.now().strftime('%m/%d/%Y %H:%M:%S'), site)
 
@@ -460,27 +463,31 @@ def sendEmail():
     print('Email Sent.')
 
 
-scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
-           'tr', 'r1', '', '', 2, 50)
-scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
-           'div', 'views-field views-field-nothing-1', 'div', 'rfp-bid-title',
-           2, 10)
-scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
-           'div', 'search-result', 'div', 'search-result-header', 50, 20)
-RFPDBCategories = pd.read_sql_query('select * from RFPDBCategories_tbl', conn)
-for index, row in RFPDBCategories.iterrows():
-    scrapeSite('RFPDB', row["category"], '', '', '',
-               '', '', 'a', '', row["pageNumbers"], 12)
-    print('RFPDB - ' + row["category"] + ' - completed.')
-scrapeEventbrite()
-print('All sites scraped.')
-executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\cleanRawSQL.sql")
-print('All tables cleaned.')
-executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
-print('Master SQL Function Complete.')
-queryToExcelSheet()
-loadCountingFrames()
-sendEmail()
-print('Master Function Complete.')
-cursor.close()
-conn.close()
+def mainFunction():
+    scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
+               'tr', 'r1', '', '', 2, 50)
+    scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
+               'div', 'views-field views-field-nothing-1', 'div', 'rfp-bid-title',
+               2, 10)
+    scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
+               'div', 'search-result', 'div', 'search-result-header', 50, 20)
+    RFPDBCategories = pd.read_sql_query('select * from RFPDBCategories_tbl', conn)
+    for index, row in RFPDBCategories.iterrows():
+        scrapeSite('RFPDB', row["category"], '', '', '',
+                   '', '', 'a', '', row["pageNumbers"], 12)
+        print('RFPDB - ' + row["category"] + ' - completed.')
+    scrapeEventbrite()
+    print('All sites scraped.')
+    executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\cleanRawSQL.sql")
+    print('All tables cleaned.')
+    executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
+    print('Master SQL Function Complete.')
+    queryToExcelSheet()
+    loadCountingFrames()
+    sendEmail()
+    print('Master Function Complete.')
+    cursor.close()
+    conn.close()
+
+
+mainFunction()

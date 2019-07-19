@@ -1,0 +1,13 @@
+meetup_api categories:
+
+tech - 292
+
+learning - 562
+
+business - 522
+
+city id:
+New york - 10001
+lat = 40.78
+lon = -73.98
+zip = 10023
