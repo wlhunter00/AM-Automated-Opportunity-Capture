@@ -167,7 +167,14 @@ The most important files to have on your computer are the [Python Master Functio
     - Parameters:  None
     - Returns: Technically nothing, but fills both the queries and sheets lists. The queries list specifies what data will be inserted into the excel sheet and the sheets list is the name of that sheet.
     - Called by: ```queryToExcelSheet```
-  -
+  - ```def loadDataFrames():``` Loads list of dataframes that is made up of the list of queries
+    - Parameters: Technically nothing, but uses list of queries from ```splitKeyWordFile```
+    - Returns: Technically nothing, but fills dataFrames list with the result from the select query.
+    - Called by: ```queryToExcelSheet``
+  - ```def loadCountingFrames():``` For the keyword queries, loads list of ints for how many new records were added
+    - Parameters: None.
+    - Returns: Technically nothing but fills array with how many new records have been inserted.
+    - Called by: ```mainFunction```
 ## Adding a Site
 
 ## Typical Errors
