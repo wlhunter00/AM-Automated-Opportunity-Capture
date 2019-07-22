@@ -38,12 +38,12 @@ Added scraped events from Eventbrite to the daily report.
 
 #### To Do:
 - [ ] Correctly spell Opportunity everywhere.
+- [ ] Create this README.
+- [ ] Create Presentation.
 - [ ] Look to implement dictionaries.
 - [ ] Make sure there aren't uneeded loops in main script.
 - [ ] Scrape 10Times.com using infinite scrolling.
 - [ ] Use FBO.gov's API to scrape their RFPs.
-- [ ] Create this README.
-- [ ] Create Presentation.
 - [ ] Decentralize the PATHs.
 
 ## Technologies
@@ -89,19 +89,53 @@ The most important files to have on your computer are the [Python Master Functio
 ### Python Master Function Walkthrough:
 - Starts with importing the libraries mentioned in [Installation](#installation).
 - Connects to SQL server.
-- **Scraping Related Functions**
-  - ```def removeEscape(text):``` removes the escape character for SQL inserts
-    - Parameters: Takes in string to parse
-    - Returns: Changed string
+- **Scraping Helping Functions**
+  - ```def removeEscape(text):``` removes the escape character for SQL inserts.
+    - Parameters: Takes in string to parse.
+    - Returns: Changed string.
     - Called by: ```insertIntoSQL```, ```scrapeEventbrite```
-  - ```def parseASCII(text):``` parses out non-ascii characters
-    - Parameters: Takes in string to parse
+  - ```def parseASCII(text):``` parses out non-ascii characters.
+    - Parameters: Takes in string to parse.
     - Returns parsed string.
     - Called by: ```insertIntoSQL```, ```scrapeEventbrite```
-  - ```def calculatePageNumber(numberOfPages, jobsPerPage, site):``` Creates an array of page numbers for the url
+  - ```def calculatePageNumber(numberOfPages, jobsPerPage, site):``` Creates an array of page numbers for the url.
     - Parameters: Takes in the number of pages and the jobs per page, and the site.
-    - Returns: An array of page numbers to parsed
+    - Returns: An array of page numbers to parsed.
     - Called by: ```scrapeSite```
+  - ```def findLastJob(tableName):``` Finds last job in tables.
+    - Parameters: Table to look at.
+    - Returns: ID of the last jobs.
+    - Called by: ```scrapeSite```
+  - ```def getURL(site, startingNumber, category):``` Gives the URL to scrape from. Has to be hardcoded.
+    - Parameters: Site to scrape, the page number, and the category we are looking at.
+    - Returns: URL to scrape.
+    - Called by: ```getContainers```
+  - ```def getContainers(site, startingNumber, HTMLobject, className, category):``` Gives array of indivdual jobs to scrape from the given page
+    - Parameters: All the information needed to retrieve the URL, and the class HTML and ID of the job object. See [Adding a Site](#adding-a-site).
+    - Returns: List of jobs to be scraped individually.
+    - Called by: ```scrapeSite```
+  - ```def getDatabase(site):``` Gives the database names based on the sites.
+    - Parameters: Name of the website.
+    - Returns: List of the Database names, the raw and piviot tables.
+    - Called by: ```scrapeSite```
+  - ```def getScrapingCase(site):``` Gives the scraping case for each website. Has to be hardcoded.
+    - Parameters: Name of the site.
+    - Returns: Name of the scraping case.
+    - Called by: ```searchAndUpload```, ```getContainers```
+  - ```def getURLCase(site):``` Gives the URL case for each website. Has to be hardcoded.
+    - Parameters: Name of the site.
+    - Returns: Name of the URL case.
+    - Called by: ```searchAndUpload```
+  - ```def listScrape(container, site, type):``` The hardcoded method to scrape a site, when the information we are looking for is super specific. So far only used for RFPDB. Usually has to be called twice, once to return a list of labels and another time to return a list of results.
+    - Parameters: The job we are looking at, the site, and if we are looking for labels or results
+    - Returns: A list containing the given information to be stored.
+    - Called by: ```searchAndUpload```
+  - ```def insertIntoSQL(databaseName, jobNumber, label, result, site):``` Inserts given information into SQL table.
+    - Parameters: Table to insert into, job number, label of information, the information, and the website.
+    - Returns: Nothing.
+    - Called by: ```searchAndUpload```
+
+
 ## Adding a Site
 
 ## Typical Errors
