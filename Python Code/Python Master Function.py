@@ -1,5 +1,7 @@
 # TO-DO: Implement dictionaries
 # look at what is being looped-and if it has to be.
+# Scrape 10Times.com using infinite scrolling scrapeEventbrite
+# Use FBO.gov's API to scrape their RFPs.
 
 # Important imports
 import requests

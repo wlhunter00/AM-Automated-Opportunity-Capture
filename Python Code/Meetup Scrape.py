@@ -9,13 +9,15 @@ from datetime import datetime
 #                       'Trusted_Connection=yes;')
 # cursor = conn.cursor()
 
-testPayload = {'client_id': '5duape4566ma89347un79v9kf', 'client secret': 'd9bda0gs3ar72416v31go97v9q', 'grant_type': 'refresh_token'}
-# keyPayload = {'client_id': '5duape4566ma89347un79v9kf', 'client_secret': 'd9bda0gs3ar72416v31go97v9q', 'grant_type': 'authorization_code'}
-keyRequest = requests.post('https://secure.meetup.com/oauth2/authorize', testPayload)
-testJSON = keyRequest.json()
-print(keyRequest)
-print(keyRequest.text.encode("utf-8"))
-print(testJSON)
+bigTest = requests.get('https://www.fbo.gov/?s=generalinfo&mode=list&tab=list&tabmode=list&static=documentation')
+print(bigTest)
+# testPayload = {'client_id': '5duape4566ma89347un79v9kf', 'client secret': 'd9bda0gs3ar72416v31go97v9q', 'grant_type': 'refresh_token'}
+# # keyPayload = {'client_id': '5duape4566ma89347un79v9kf', 'client_secret': 'd9bda0gs3ar72416v31go97v9q', 'grant_type': 'authorization_code'}
+# keyRequest = requests.post('https://secure.meetup.com/oauth2/authorize', testPayload)
+# testJSON = keyRequest.json()
+# print(keyRequest)
+# print(keyRequest.text.encode("utf-8"))
+# print(testJSON)
 # parameters = {"access_token": "d9bda0gs3ar72416v31go97v9q"}
 # request = requests.get('https://api.meetup.com/find/upcoming_events?&sign=true&photo-host=public&lon=-73.98&topic_category=522, 292, 562&page=4000&radius=10&lat=40.78&order=time')
 # request = requests.get('https://api.meetup.com/find/groups', parameters)
