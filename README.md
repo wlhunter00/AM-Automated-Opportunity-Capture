@@ -89,6 +89,27 @@ The most important files to have on your computer are the [Python Master Functio
 ### Python Master Function Walkthrough:
 - Starts with importing the libraries mentioned in [Installation](#installation).
 - Connects to SQL server.
+- **Scraping Main Functions**
+  - ```def searchAndUpload(container, labelHTML, resultHTML, titleHTML, labelDef, resultDef, titleDef, databaseName, jobNumber, pageNumber, site):``` Will scrape all of the relevant information from a job, and then upload this information to an SQL raw table.
+    - Walkthrough: Very case based. First you scrap the jobs information using the HTML and class definitions (or hard code scrape it). Then you loop through the whole list and insert this information into SQL. Then based on the sites and the cases you insert specific information into the SQL table.
+    - Parameters: Takes in a job (container), the HTML and class of the label, result, and title information, the name of the table, the job number and website.
+    - Returns: Nothing.
+    - Called by ```scrapeSite```
+  - ```def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef, containerHTML, containerDef, titleHTML, titleDef, numberOfPages, jobsPerPage):``` Main function used for web scraping.
+    - Walkthrough: First we get the needed information such as the database names, the starting number, and array of page numbers. Then for each page we get a list of jobs. Then for each job we scrape and upload.
+    - Parameters: The website, HTML and class for the label, result, container, and the number of pages and jobs per page.
+    - Returns: Nothing.
+    - Called by ```mainFunction```
+  - ```def scrapeEventbrite():``` Scrapes information from Eventbrites API and uploads it to SQL.
+    - Walkthrough: First give the categories to scrape. Then for each category find the number of pages of events there are. Then loop through each event and insert the given information into the table.
+    - Parameters: Nothing.
+    - Returns: Nothing.
+    - Called by: ```mainFunction```
+  - ```def executeScriptsFromFile(filename):``` Executes SQL query from a file. Used with ```cleanRawSQL``` and ```masterSQLFunction```.
+    - Walkthrough: Opens the SQL file, splits each command by find the ';', and then runs each command.
+    - Parameters: The location of the SQL query we want to run.
+    - Returns: Nothing.
+    - Called by: ```mainFunction```
 - **Scraping Helping Functions**
   - ```def removeEscape(text):``` removes the escape character for SQL inserts.
     - Parameters: Takes in string to parse.
@@ -134,8 +155,12 @@ The most important files to have on your computer are the [Python Master Functio
     - Parameters: Table to insert into, job number, label of information, the information, and the website.
     - Returns: Nothing.
     - Called by: ```searchAndUpload```
-
-
+- **Exporting Helping Functions**
+  - ```def splitKeyWordFile():``` Opens up the keyword file and fills the queries and sheets list.
+    - Parameters:  None
+    - Returns: Technically nothing, but fills both the queries and sheets lists. The queries list specifies what data will be inserted into the excel sheet and the sheets list is the name of that sheet.
+    - Called by: ```queryToExcelSheet```
+  -
 ## Adding a Site
 
 ## Typical Errors
