@@ -25,6 +25,9 @@ on the tools findings will be emailed to the team.
 * [Walkthroughs](#Walkthroughs)
   * [File Walkthroughs](#files-walkthrough)
   * [Python Master Function Walkthrough](#Python-Master-Function-Walkthrough)
+    * [Scraping Main Functions](#Scraping-main-functions)
+    * [Scraping Helping Functions](#Scraping-Helping-Functions)
+    * [Exporting Helping Functions](#Exporting-Helping-Functions)
 * [Adding a Site](#adding-a-site)
 * [Typical Errors](#typical-errors)
 
@@ -89,7 +92,9 @@ The most important files to have on your computer are the [Python Master Functio
 ### Python Master Function Walkthrough:
 - Starts with importing the libraries mentioned in [Installation](#installation).
 - Connects to SQL server.
-- **Scraping Main Functions**
+- Creates lists to store information.
+
+#### **Scraping Main Functions**
   - ```def searchAndUpload(container, labelHTML, resultHTML, titleHTML, labelDef, resultDef, titleDef, databaseName, jobNumber, pageNumber, site):``` Will scrape all of the relevant information from a job, and then upload this information to an SQL raw table.
     - Walkthrough: Very case based. First you scrap the jobs information using the HTML and class definitions (or hard code scrape it). Then you loop through the whole list and insert this information into SQL. Then based on the sites and the cases you insert specific information into the SQL table.
     - Parameters: Takes in a job (container), the HTML and class of the label, result, and title information, the name of the table, the job number and website.
@@ -110,7 +115,8 @@ The most important files to have on your computer are the [Python Master Functio
     - Parameters: The location of the SQL query we want to run.
     - Returns: Nothing.
     - Called by: ```mainFunction```
-- **Scraping Helping Functions**
+
+#### **Scraping Helping Functions**
   - ```def removeEscape(text):``` removes the escape character for SQL inserts.
     - Parameters: Takes in string to parse.
     - Returns: Changed string.
@@ -155,7 +161,8 @@ The most important files to have on your computer are the [Python Master Functio
     - Parameters: Table to insert into, job number, label of information, the information, and the website.
     - Returns: Nothing.
     - Called by: ```searchAndUpload```
-- **Exporting Helping Functions**
+
+#### **Exporting Helping Functions**
   - ```def splitKeyWordFile():``` Opens up the keyword file and fills the queries and sheets list.
     - Parameters:  None
     - Returns: Technically nothing, but fills both the queries and sheets lists. The queries list specifies what data will be inserted into the excel sheet and the sheets list is the name of that sheet.
