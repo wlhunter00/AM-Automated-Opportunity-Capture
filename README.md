@@ -44,6 +44,7 @@ Added scraped events from Eventbrite to the daily report.
 - [ ] Use FBO.gov's API to scrape their RFPs.
 - [ ] Create this README.
 - [ ] Create Presentation.
+- [ ] Decentralize the PATHs.
 
 ## Technologies
 Project was created with:
@@ -57,7 +58,24 @@ Project was created with:
 - HTML
 
 ## Installation
+For this to fully work, the application needs to be run on a **MAGNUS** computer, as the inserts into the SQL database need to be accessed on the remote desktop.
 
+First, you  need to install [Python 3.7.1](https://www.python.org/ftp/python/3.7.4/python-3.7.4.exe) (you need to have a python version 3.0+). I use [ATOM](https://atom.io/download/windows_x64) as my text editor, by any works.
+
+Then you are going to set your PATH and ```python -m pip install``` in the command prompt the following libraries:
+
+1. datetime
+2. bs4
+3. Pyodbc
+4. Yagmail
+5. Pandas
+6. glob
+7. os
+8. requests
+
+(Optionally) you can install [Microsoft SQL Server](https://go.microsoft.com/fwlink/?linkid=853017) to view the data yourself and to debug.
+
+The most important files to have on your computer are [Python Master Function](Python Code/Python Master Function.py)
 ## Walkthrough
 
 #### File Walkthrough:
