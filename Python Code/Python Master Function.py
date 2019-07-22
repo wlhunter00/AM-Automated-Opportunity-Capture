@@ -32,12 +32,6 @@ dataFrames = []
 dfForCount = []
 
 
-# Function that will simply truncate the table through python
-# - mainly to make life easier
-def truncateSQL(tableName):
-    cursor.execute('truncate table {0}'.format(tableName))
-
-
 # Removes escape characters
 def removeEscape(text):
     return text.replace('\'', '\'\'')
@@ -49,30 +43,6 @@ def parseASCII(text):
         return ''.join(filter(lambda x: x in string.printable, text)).replace('', '')
     else:
         return ''
-
-
-# Given a file, it will execute any .sql files.
-# Update SQL tables
-def executeScriptsFromFile(filename):
-    # Open and read the file as a single buffer
-    fd = open(filename, 'r')
-    sqlFile = fd.read()
-    fd.close()
-
-    # all SQL commands (split on ';')
-    sqlCommands = sqlFile.split(';')
-
-    # Execute every command from the input file
-    for command in sqlCommands:
-        # This will skip and report errors
-        # For example, if the tables do not yet exist, this will skip over
-        # the DROP TABLE commands
-        try:
-            cursor.execute(command)
-            conn.commit()
-            print("{0} excecuted.".format(str(command)))
-        except:
-            print("Command skipped: {0}".format(str(command)))
 
 
 # Pass in the number of pages you want to scrape and the amount of jobs you
@@ -352,6 +322,30 @@ def scrapeEventbrite():
                             removeEscape(parseASCII(i['venue']['address']['localized_address_display']))))
                 conn.commit()
             print('Eventbrite page parsed: {0} page {1}'.format(category, str(pageNumber)) )
+
+
+# Given a file, it will execute any .sql files.
+# Update SQL tables
+def executeScriptsFromFile(filename):
+    # Open and read the file as a single buffer
+    fd = open(filename, 'r')
+    sqlFile = fd.read()
+    fd.close()
+
+    # all SQL commands (split on ';')
+    sqlCommands = sqlFile.split(';')
+
+    # Execute every command from the input file
+    for command in sqlCommands:
+        # This will skip and report errors
+        # For example, if the tables do not yet exist, this will skip over
+        # the DROP TABLE commands
+        try:
+            cursor.execute(command)
+            conn.commit()
+            print("{0} excecuted.".format(str(command)))
+        except:
+            print("Command skipped: {0}".format(str(command)))
 
 
 # Function that goes through text file and stores queries and sheets into

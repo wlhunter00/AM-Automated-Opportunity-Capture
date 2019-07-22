@@ -22,9 +22,9 @@ on the tools findings will be emailed to the team.
 * [Introduction](#introduction)
 * [Technologies](#technologies)
 * [Installation](#installation)
-* [Walkthrough](#Walkthrough)
-  * [File Walkthrough](#file-walkthrough)
-  * [Functions Walkthrough](#functions-walkthrough)
+* [Walkthroughs](#Walkthroughs)
+  * [File Walkthroughs](#files-walkthrough)
+  * [Python Master Function Walkthrough](#Python-Master-Function-Walkthrough)
 * [Adding a Site](#adding-a-site)
 * [Typical Errors](#typical-errors)
 
@@ -75,13 +75,33 @@ Then you are going to set your PATH and ```python -m pip install``` in the comma
 
 (Optionally) you can install [Microsoft SQL Server](https://go.microsoft.com/fwlink/?linkid=853017) to view the data yourself and to debug.
 
-The most important files to have on your computer are [Python Master Function](Python Code/Python Master Function.py)
-## Walkthrough
+The most important files to have on your computer are the [Python Master Function](https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Python%20Code/Python%20Master%20Function.py), [Master SQL Query](https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/SQL%20Scripts/Master%20Function%20Query.sql), [Clean Raw SQL Query](https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/SQL%20Scripts/cleanRawSQL.sql), and the [SQL to Python Keywords](https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/SQL-Python%20Keywords%20Queries.txt) files. Finally you will need the **Email Information** text file. This file is not found in the Github, as it contains sensative information.
+## Walkthroughs
 
-#### File Walkthrough:
+### Files Walkthrough:
+- The first folders house the files used to develop the scraping algorithms for the indivdual sites (10Times, DASNY, GOVUK, NYSCR, RFPDB).
+- The Excel Sheets folder houses the export sheets from this application.
+- The Presentation Photos were simply used for screenshots.
+- The Weekly Reports house the powerpoint presentations I have created throughout the internship.
+- The folder Python Code houses all of the python scripts, the most important one being the [Python Master Function](https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Python%20Code/Python%20Master%20Function.py).
+- The folder SQL scripts houses all of the SQL server queries, the most important ones being the [Master SQL Query](https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/SQL%20Scripts/Master%20Function%20Query.sql), and the [Clean Raw SQL Query](https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/SQL%20Scripts/cleanRawSQL.sql).
 
-#### Functions Walkthrough:
-
+### Python Master Function Walkthrough:
+- Starts with importing the libraries mentioned in [Installation](#installation).
+- Connects to SQL server.
+- **Scraping Related Functions**
+  - ```def removeEscape(text):``` removes the escape character for SQL inserts
+    - Parameters: Takes in string to parse
+    - Returns: Changed string
+    - Called by: ```insertIntoSQL```, ```scrapeEventbrite```
+  - ```def parseASCII(text):``` parses out non-ascii characters
+    - Parameters: Takes in string to parse
+    - Returns parsed string.
+    - Called by: ```insertIntoSQL```, ```scrapeEventbrite```
+  - ```def calculatePageNumber(numberOfPages, jobsPerPage, site):``` Creates an array of page numbers for the url
+    - Parameters: Takes in the number of pages and the jobs per page, and the site.
+    - Returns: An array of page numbers to parsed
+    - Called by: ```scrapeSite```
 ## Adding a Site
 
 ## Typical Errors
