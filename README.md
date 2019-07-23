@@ -279,9 +279,12 @@ is much better than
 Also notice where there are variables that we want to manipulate. Usually this is pageNumber and category. Since the only thing we are going to manipulate is page number, we need to keep in mind where it is (```page=1``` at the end).
 
 ### Individual Listing
-Each specific event or job is in what is called a 'container'. The best way to find this is to open up the website and inspect element in Google Chrome (```F12```).  The job container is the farthest out object that encompasses all of the information for that specific job. See below for an example. Note the HTML object name (in this case ```div```) and the class name (in this case ```"views-row"```).
+Each specific event or job is in what is called a 'container'. The best way to find this is to open up the website and inspect element in Google Chrome (```F12```).  The job container is the farthest out object that encompasses all of the information for that specific job. See below for an example. Note the HTML object name (in this case ```<div>```) and the class name (in this case ```"views-row"```). This will be the same for every site.
 <br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Job%20Container.png"><br>
 
+### Title
+More often than not the title will have its own HTML element in the job container. Sometimes there will be even more information than just the title, such as the URL of the specific opportunity, so you can be crafty with how you scrape (like looking for a ```<a>``` tag). In this specific situation we want to note the HTML tag of the title (```<div>```), the class of the title (```rfp-bid-title```), and any other information (the url has a tag of ```<a>```).
+<br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Title.png"><br>
 
 ## Typical Errors
 - Creating failures
