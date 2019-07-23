@@ -33,6 +33,9 @@ on the tools findings will be emailed to the team.
     * [Clean Raw Queries](#clean-raw-queries)
     * [Master Function Query](#master-function-query)
 * [Adding a Site](#adding-a-site)
+  - [Looking at HTML](#looking-at-html)
+    - [URL](#url)
+    - [Individual Listing](#indivdual-listing)
 * [Typical Errors](#typical-errors)
 
 ## Project Status
@@ -103,7 +106,7 @@ The most important files to have on your computer are the [Python Master Functio
   - Returns: Nothing.
   - Called by: None
 
-  #### **Scraping Main Functions**
+  #### Scraping Main Functions
     - ```def searchAndUpload(container, labelHTML, resultHTML, titleHTML, labelDef, resultDef, titleDef, databaseName, jobNumber, pageNumber, site):``` Will scrape all of the relevant information from a job, and then upload this information to an SQL raw table.
       - Walkthrough: Very case based. First you scrap the jobs information using the HTML and class definitions (or hard code scrape it). Then you loop through the whole list and insert this information into SQL. Then based on the sites and the cases you insert specific information into the SQL table.
       - Parameters: Takes in a job (container), the HTML and class of the label, result, and title information, the name of the table, the job number and website.
@@ -125,7 +128,7 @@ The most important files to have on your computer are the [Python Master Functio
       - Returns: Nothing.
       - Called by: ```mainFunction```
 
-  #### **Scraping Helping Functions**
+  #### Scraping Helping Functions
     - ```def removeEscape(text):``` removes the escape character for SQL inserts.
       - Parameters: Takes in string to parse.
       - Returns: Changed string.
@@ -171,7 +174,7 @@ The most important files to have on your computer are the [Python Master Functio
       - Returns: Nothing.
       - Called by: ```searchAndUpload```
 
-  #### **Exporting Main Functions**
+  #### Exporting Main Functions
   - ```def queryToExcelSheet():``` Will create an excel file from SQL queries.
     - Walkthrough: First we grab the SQL queries we want to use from the text file, then we load the data from the SQL tables into a dataframe, then we take this data and put it into two different excel spreadsheets, one is updating the master sheet and one is the daily excel file.
     - Parameters: None.
@@ -183,7 +186,7 @@ The most important files to have on your computer are the [Python Master Functio
     - Parameters: None.
     - Returns: Nothing.
 
-  #### **Exporting Helping Functions**
+  #### Exporting Helping Functions
     - ```def splitKeyWordFile():``` Opens up the keyword file and fills the queries and sheets list.
       - Parameters:  None
       - Returns: Technically nothing, but fills both the queries and sheets lists. The queries list specifies what data will be inserted into the excel sheet and the sheets list is the name of that sheet.
@@ -204,10 +207,10 @@ The most important files to have on your computer are the [Python Master Functio
 ### SQL Walkthrough:
 There are two main SQL files, the master function which is what does most of the work in this process, and the cleaning query that is used to fix weird anomalies in the scraped data.
 
-  #### **Clean Raw Queries**
+  #### Clean Raw Queries
   Very basic queries, this is just done as a measure to fix things that will upset the system. For instance when scraping ```NYSCR``` sometimes the Due Date is called ```Due Date``` but it is also sometimes called ```End Date``` so we want to change that to be uniform. We also sometimes will need to cut strings short or in half depending on the situation.
 
-  #### **Master Function Query**
+  #### Master Function Query
   The first thing done is to truncate each sites respective pivotTables, and then inserting the raw data into the pivot table like so:
   ```
   insert into NYSCR_pvt
@@ -245,6 +248,40 @@ There are two main SQL files, the master function which is what does most of the
   After this is done, we truncate the raw tables, and repeate the same process with the events.
 
 ## Adding a Site
+In order to sucessfully add a site to be scraped you need to:
+1. Look at the site you want to scrape and figure out how it is formatted.
+2. Identifiy all elements you want to scrape from this site.
+3. Adapt the ```Python Master Function``` if need be so it can accommodate this new site.
+4. Add a function in the ```mainFunction``` to scrape this site.
+5. Create a raw SQL table in Microsoft SQL server for the site, make sure it has the same format as the others.
+6. Create a pivot table for this site.
+7. Merge the sites pivot table into the master table.
+
+### Looking at HTML
+When looking at the site you want to scrape, first pull up the search page with as many results as possible. If you would like, you can add filters on the site, as long as these filters effect the url. In general most sites' HTML is formatted in a similar way. Each oppourtunity will be in its own element, and within that element there will be a class for the label, and then a class for the information to be displayed. You want to look for these elements in the site when scraping:
+1. URL
+2. What defines an individual listing
+3. What defines the title
+4. What defines the label text
+5. What defines the result text
+6. Any other information you can scrape
+7. What makes this site different.
+
+### URL
+This one is the easiest to understand. The more specific the url, the better.
+
+```https://www.dasny.org/opportunities/rfps-bids?field_solicitation_classificatio_target_id=All&field_solicitation_type_target_id=All&field_goals_target_id=All&field_set_aside_target_id=All&query=&page=1```
+
+is much better than
+
+```https://www.dasny.org/opportunities/rfps-bids```.
+
+Also notice where there are variables that we want to manipulate. Usually this is pageNumber and category. Since the only thing we are going to manipulate is page number, we need to keep in mind where it is (```page=1``` at the end).
+
+### Individual Listing
+Each specific event or job is in what is called a 'container'. The best way to find this is to open up the website and inspect element in Google Chrome (```F12```).  The job container is the farthest out object that encompasses all of the information for that specific job. See below for an example. Note the HTML object name (in this case ```div```) and the class name (in this case ```"views-row"```).
+<br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Example%20Table.PNG"><br>
+
 
 ## Typical Errors
 - Creating failures
