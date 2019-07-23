@@ -174,7 +174,7 @@ The most important files to have on your computer are the [Python Master Functio
   - Called by: ```mainFunction```
 - ```def sendEmail():``` Sends email to the team using a premade gmail account. Attached is the excel file that was created.
   - Walkthrough: First we open up the email login file, then we find the latest created excel file, then we create the body of the email, the HTML variable is the table that is created, as shown below. This is all then loaded on an yagmail object and sent to all the email addresses we want.
-  
+  <br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Example%20Table.PNG"><br>
   - Parameters: None.
   - Returns: Nothing.
 
