@@ -36,6 +36,10 @@ on the tools findings will be emailed to the team.
   - [Looking at HTML](#looking-at-html)
     - [URL](#url)
     - [Individual Listing](#indivdual-listing)
+    - [Titles](#titles)
+    - [Labels](#labels)
+    - [Results](#results)
+    - [Differences in Sites](#Differences-in-Sites)
 * [Typical Errors](#typical-errors)
 
 ## Project Status
@@ -282,9 +286,27 @@ Also notice where there are variables that we want to manipulate. Usually this i
 Each specific event or job is in what is called a 'container'. The best way to find this is to open up the website and inspect element in Google Chrome (```F12```).  The job container is the farthest out object that encompasses all of the information for that specific job. See below for an example. Note the HTML object name (in this case ```<div>```) and the class name (in this case ```"views-row"```). This will be the same for every site.
 <br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Job%20Container.png"><br>
 
-### Title
+### Titles
 More often than not the title will have its own HTML element in the job container. Sometimes there will be even more information than just the title, such as the URL of the specific opportunity, so you can be crafty with how you scrape (like looking for a ```<a>``` tag). In this specific situation we want to note the HTML tag of the title (```<div>```), the class of the title (```rfp-bid-title```), and any other information (the url has a tag of ```<a>```).
 <br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Title.png"><br>
+
+### Labels
+Almost every site also has labels. I define labels as the text next to the important information. We want to scrape this so that we can use pivot tables later. The way we upload to SQL is by inputing the label and the text side by side, so its important that for every label we scrape it has a corresponding result text. Some example labels are **Due Date:**, **Status**, **Location**, and **Category**. Take note of every type of label you are scraping for later, as well as the HTML tag of the label (```<td>```) and the class of the label (nothing in this case).
+<br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Label%20Text.png"><br>
+
+### Results
+Result text is what I call the actual information we are scrapping. Sometimes this information can be tied to the label which requires a little bit of hard coding. Some example results are **10/23/19**, **Active**, **New York**, and **RFP**. It is ok if the label and the result use the same HTML tag, just make sure you use classes. Its also important not to be too specific for the label text, because with BeautifulSoup you are able to grab just the text. For instance in the example I am about to provide, notice how I am not using the ```<time>``` tag. Take note of the HTML tag of the result (```<td>```) and the class of the result (```fieldValue```).
+<br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Label%20Text.png"><br>
+
+## Differences in Sites
+Every site is different so it is important to note of differences from the norm. Here are a few differences in sites that I have run across, but every site is different
+- Scraping their API is easier
+- Individual opportunities don't have a url.
+- Labels are tied together with results
+- There are no labels
+- There is a parallax effect (infinite scrolling)
+- You have to login to access important information.
+- The way the page numbers are done in the URL is different.
 
 ## Typical Errors
 - Creating failures
