@@ -280,7 +280,7 @@ Also notice where there are variables that we want to manipulate. Usually this i
 
 ### Individual Listing
 Each specific event or job is in what is called a 'container'. The best way to find this is to open up the website and inspect element in Google Chrome (```F12```).  The job container is the farthest out object that encompasses all of the information for that specific job. See below for an example. Note the HTML object name (in this case ```div```) and the class name (in this case ```"views-row"```).
-<br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Example%20Table.PNG"><br>
+<br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Job%20Container.png"><br>
 
 
 ## Typical Errors
