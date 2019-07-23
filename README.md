@@ -27,7 +27,11 @@ on the tools findings will be emailed to the team.
   * [Python Master Function Walkthrough](#Python-Master-Function-Walkthrough)
     * [Scraping Main Functions](#Scraping-main-functions)
     * [Scraping Helping Functions](#Scraping-Helping-Functions)
+    * [Exporting Main Functions](#Exporting-Main-Functions)
     * [Exporting Helping Functions](#Exporting-Helping-Functions)
+  * [SQL Walkthrough](#SQL-Walkthrough)
+    * [Clean Raw Queries](#clean-raw-queries)
+    * [Master Function Query](#master-function-query)
 * [Adding a Site](#adding-a-site)
 * [Typical Errors](#typical-errors)
 
@@ -48,6 +52,7 @@ Added scraped events from Eventbrite to the daily report.
 - [ ] Scrape 10Times.com using infinite scrolling.
 - [ ] Use FBO.gov's API to scrape their RFPs.
 - [ ] Decentralize the PATHs.
+- [ ] Rename the job tables in SQL so that it is more clear that they are jobs (current and master).
 
 ## Technologies
 Project was created with:
@@ -98,103 +103,146 @@ The most important files to have on your computer are the [Python Master Functio
   - Returns: Nothing.
   - Called by: None
 
-#### **Scraping Main Functions**
-  - ```def searchAndUpload(container, labelHTML, resultHTML, titleHTML, labelDef, resultDef, titleDef, databaseName, jobNumber, pageNumber, site):``` Will scrape all of the relevant information from a job, and then upload this information to an SQL raw table.
-    - Walkthrough: Very case based. First you scrap the jobs information using the HTML and class definitions (or hard code scrape it). Then you loop through the whole list and insert this information into SQL. Then based on the sites and the cases you insert specific information into the SQL table.
-    - Parameters: Takes in a job (container), the HTML and class of the label, result, and title information, the name of the table, the job number and website.
-    - Returns: Nothing.
-    - Called by ```scrapeSite```
-  - ```def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef, containerHTML, containerDef, titleHTML, titleDef, numberOfPages, jobsPerPage):``` Main function used for web scraping.
-    - Walkthrough: First we get the needed information such as the database names, the starting number, and array of page numbers. Then for each page we get a list of jobs. Then for each job we scrape and upload.
-    - Parameters: The website, HTML and class for the label, result, container, and the number of pages and jobs per page.
-    - Returns: Nothing.
-    - Called by ```mainFunction```
-  - ```def scrapeEventbrite():``` Scrapes information from Eventbrites API and uploads it to SQL.
-    - Walkthrough: First give the categories to scrape. Then for each category find the number of pages of events there are. Then loop through each event and insert the given information into the table.
-    - Parameters: Nothing.
-    - Returns: Nothing.
-    - Called by: ```mainFunction```
-  - ```def executeScriptsFromFile(filename):``` Executes SQL query from a file. Used with ```cleanRawSQL``` and ```masterSQLFunction```.
-    - Walkthrough: Opens the SQL file, splits each command by find the ';', and then runs each command.
-    - Parameters: The location of the SQL query we want to run.
-    - Returns: Nothing.
-    - Called by: ```mainFunction```
+  #### **Scraping Main Functions**
+    - ```def searchAndUpload(container, labelHTML, resultHTML, titleHTML, labelDef, resultDef, titleDef, databaseName, jobNumber, pageNumber, site):``` Will scrape all of the relevant information from a job, and then upload this information to an SQL raw table.
+      - Walkthrough: Very case based. First you scrap the jobs information using the HTML and class definitions (or hard code scrape it). Then you loop through the whole list and insert this information into SQL. Then based on the sites and the cases you insert specific information into the SQL table.
+      - Parameters: Takes in a job (container), the HTML and class of the label, result, and title information, the name of the table, the job number and website.
+      - Returns: Nothing.
+      - Called by ```scrapeSite```
+    - ```def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef, containerHTML, containerDef, titleHTML, titleDef, numberOfPages, jobsPerPage):``` Main function used for web scraping.
+      - Walkthrough: First we get the needed information such as the database names, the starting number, and array of page numbers. Then for each page we get a list of jobs. Then for each job we scrape and upload.
+      - Parameters: The website, HTML and class for the label, result, container, and the number of pages and jobs per page.
+      - Returns: Nothing.
+      - Called by ```mainFunction```
+    - ```def scrapeEventbrite():``` Scrapes information from Eventbrites API and uploads it to SQL.
+      - Walkthrough: First give the categories to scrape. Then for each category find the number of pages of events there are. Then loop through each event and insert the given information into the table.
+      - Parameters: Nothing.
+      - Returns: Nothing.
+      - Called by: ```mainFunction```
+    - ```def executeScriptsFromFile(filename):``` Executes SQL query from a file. Used with ```cleanRawSQL``` and ```masterSQLFunction```.
+      - Walkthrough: Opens the SQL file, splits each command by find the ';', and then runs each command.
+      - Parameters: The location of the SQL query we want to run.
+      - Returns: Nothing.
+      - Called by: ```mainFunction```
 
-#### **Scraping Helping Functions**
-  - ```def removeEscape(text):``` removes the escape character for SQL inserts.
-    - Parameters: Takes in string to parse.
-    - Returns: Changed string.
-    - Called by: ```insertIntoSQL```, ```scrapeEventbrite```
-  - ```def parseASCII(text):``` parses out non-ascii characters.
-    - Parameters: Takes in string to parse.
-    - Returns parsed string.
-    - Called by: ```insertIntoSQL```, ```scrapeEventbrite```
-  - ```def calculatePageNumber(numberOfPages, jobsPerPage, site):``` Creates an array of page numbers for the url.
-    - Parameters: Takes in the number of pages and the jobs per page, and the site.
-    - Returns: An array of page numbers to parsed.
-    - Called by: ```scrapeSite```
-  - ```def findLastJob(tableName):``` Finds last job in tables.
-    - Parameters: Table to look at.
-    - Returns: ID of the last jobs.
-    - Called by: ```scrapeSite```
-  - ```def getURL(site, startingNumber, category):``` Gives the URL to scrape from. Has to be hardcoded.
-    - Parameters: Site to scrape, the page number, and the category we are looking at.
-    - Returns: URL to scrape.
-    - Called by: ```getContainers```
-  - ```def getContainers(site, startingNumber, HTMLobject, className, category):``` Gives array of indivdual jobs to scrape from the given page
-    - Parameters: All the information needed to retrieve the URL, and the class HTML and ID of the job object. See [Adding a Site](#adding-a-site).
-    - Returns: List of jobs to be scraped individually.
-    - Called by: ```scrapeSite```
-  - ```def getDatabase(site):``` Gives the database names based on the sites.
-    - Parameters: Name of the website.
-    - Returns: List of the Database names, the raw and piviot tables.
-    - Called by: ```scrapeSite```
-  - ```def getScrapingCase(site):``` Gives the scraping case for each website. Has to be hardcoded.
-    - Parameters: Name of the site.
-    - Returns: Name of the scraping case.
-    - Called by: ```searchAndUpload```, ```getContainers```
-  - ```def getURLCase(site):``` Gives the URL case for each website. Has to be hardcoded.
-    - Parameters: Name of the site.
-    - Returns: Name of the URL case.
-    - Called by: ```searchAndUpload```
-  - ```def listScrape(container, site, type):``` The hardcoded method to scrape a site, when the information we are looking for is super specific. So far only used for RFPDB. Usually has to be called twice, once to return a list of labels and another time to return a list of results.
-    - Parameters: The job we are looking at, the site, and if we are looking for labels or results
-    - Returns: A list containing the given information to be stored.
-    - Called by: ```searchAndUpload```
-  - ```def insertIntoSQL(databaseName, jobNumber, label, result, site):``` Inserts given information into SQL table.
-    - Parameters: Table to insert into, job number, label of information, the information, and the website.
-    - Returns: Nothing.
-    - Called by: ```searchAndUpload```
+  #### **Scraping Helping Functions**
+    - ```def removeEscape(text):``` removes the escape character for SQL inserts.
+      - Parameters: Takes in string to parse.
+      - Returns: Changed string.
+      - Called by: ```insertIntoSQL```, ```scrapeEventbrite```
+    - ```def parseASCII(text):``` parses out non-ascii characters.
+      - Parameters: Takes in string to parse.
+      - Returns parsed string.
+      - Called by: ```insertIntoSQL```, ```scrapeEventbrite```
+    - ```def calculatePageNumber(numberOfPages, jobsPerPage, site):``` Creates an array of page numbers for the url.
+      - Parameters: Takes in the number of pages and the jobs per page, and the site.
+      - Returns: An array of page numbers to parsed.
+      - Called by: ```scrapeSite```
+    - ```def findLastJob(tableName):``` Finds last job in tables.
+      - Parameters: Table to look at.
+      - Returns: ID of the last jobs.
+      - Called by: ```scrapeSite```
+    - ```def getURL(site, startingNumber, category):``` Gives the URL to scrape from. Has to be hardcoded.
+      - Parameters: Site to scrape, the page number, and the category we are looking at.
+      - Returns: URL to scrape.
+      - Called by: ```getContainers```
+    - ```def getContainers(site, startingNumber, HTMLobject, className, category):``` Gives array of indivdual jobs to scrape from the given page
+      - Parameters: All the information needed to retrieve the URL, and the class HTML and ID of the job object. See [Adding a Site](#adding-a-site).
+      - Returns: List of jobs to be scraped individually.
+      - Called by: ```scrapeSite```
+    - ```def getDatabase(site):``` Gives the database names based on the sites.
+      - Parameters: Name of the website.
+      - Returns: List of the Database names, the raw and piviot tables.
+      - Called by: ```scrapeSite```
+    - ```def getScrapingCase(site):``` Gives the scraping case for each website. Has to be hardcoded.
+      - Parameters: Name of the site.
+      - Returns: Name of the scraping case.
+      - Called by: ```searchAndUpload```, ```getContainers```
+    - ```def getURLCase(site):``` Gives the URL case for each website. Has to be hardcoded.
+      - Parameters: Name of the site.
+      - Returns: Name of the URL case.
+      - Called by: ```searchAndUpload```
+    - ```def listScrape(container, site, type):``` The hardcoded method to scrape a site, when the information we are looking for is super specific. So far only used for RFPDB. Usually has to be called twice, once to return a list of labels and another time to return a list of results.
+      - Parameters: The job we are looking at, the site, and if we are looking for labels or results
+      - Returns: A list containing the given information to be stored.
+      - Called by: ```searchAndUpload```
+    - ```def insertIntoSQL(databaseName, jobNumber, label, result, site):``` Inserts given information into SQL table.
+      - Parameters: Table to insert into, job number, label of information, the information, and the website.
+      - Returns: Nothing.
+      - Called by: ```searchAndUpload```
 
-#### **Exporting Main Functions**
-- ```def queryToExcelSheet():``` Will create an excel file from SQL queries.
-  - Walkthrough: First we grab the SQL queries we want to use from the text file, then we load the data from the SQL tables into a dataframe, then we take this data and put it into two different excel spreadsheets, one is updating the master sheet and one is the daily excel file.
-  - Parameters: None.
-  - Returns: Nothing.
-  - Called by: ```mainFunction```
-- ```def sendEmail():``` Sends email to the team using a premade gmail account. Attached is the excel file that was created.
-  - Walkthrough: First we open up the email login file, then we find the latest created excel file, then we create the body of the email, the HTML variable is the table that is created, as shown below. This is all then loaded on an yagmail object and sent to all the email addresses we want.
-  <br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Example%20Table.PNG"><br>
-  - Parameters: None.
-  - Returns: Nothing.
-
-#### **Exporting Helping Functions**
-  - ```def splitKeyWordFile():``` Opens up the keyword file and fills the queries and sheets list.
-    - Parameters:  None
-    - Returns: Technically nothing, but fills both the queries and sheets lists. The queries list specifies what data will be inserted into the excel sheet and the sheets list is the name of that sheet.
-    - Called by: ```queryToExcelSheet```
-  - ```def loadDataFrames():``` Loads list of dataframes that is made up of the list of queries
-    - Parameters: Technically nothing, but uses list of queries from ```splitKeyWordFile```
-    - Returns: Technically nothing, but fills dataFrames list with the result from the select query.
-    - Called by: ```queryToExcelSheet``
-  - ```def loadCountingFrames():``` For the keyword queries, loads list of ints for how many new records were added
+  #### **Exporting Main Functions**
+  - ```def queryToExcelSheet():``` Will create an excel file from SQL queries.
+    - Walkthrough: First we grab the SQL queries we want to use from the text file, then we load the data from the SQL tables into a dataframe, then we take this data and put it into two different excel spreadsheets, one is updating the master sheet and one is the daily excel file.
     - Parameters: None.
-    - Returns: Technically nothing but fills array with how many new records have been inserted.
-    - Called by: ```mainFunction```
-  - ```def writeToExcel(writer):``` Will write a dataframe into an excel spreadsheet. Loops through all of the queries.
-    - Parameters: Takes in a writer, which is basically an excel document.
     - Returns: Nothing.
-    - Called by: ```queryToExcelSheet```
+    - Called by: ```mainFunction```
+  - ```def sendEmail():``` Sends email to the team using a premade gmail account. Attached is the excel file that was created.
+    - Walkthrough: First we open up the email login file, then we find the latest created excel file, then we create the body of the email, the HTML variable is the table that is created, as shown below. This is all then loaded on an yagmail object and sent to all the email addresses we want.
+    <br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Example%20Table.PNG"><br>
+    - Parameters: None.
+    - Returns: Nothing.
+
+  #### **Exporting Helping Functions**
+    - ```def splitKeyWordFile():``` Opens up the keyword file and fills the queries and sheets list.
+      - Parameters:  None
+      - Returns: Technically nothing, but fills both the queries and sheets lists. The queries list specifies what data will be inserted into the excel sheet and the sheets list is the name of that sheet.
+      - Called by: ```queryToExcelSheet```
+    - ```def loadDataFrames():``` Loads list of dataframes that is made up of the list of queries
+      - Parameters: Technically nothing, but uses list of queries from ```splitKeyWordFile```
+      - Returns: Technically nothing, but fills dataFrames list with the result from the select query.
+      - Called by: ```queryToExcelSheet``
+    - ```def loadCountingFrames():``` For the keyword queries, loads list of ints for how many new records were added
+      - Parameters: None.
+      - Returns: Technically nothing but fills array with how many new records have been inserted.
+      - Called by: ```mainFunction```
+    - ```def writeToExcel(writer):``` Will write a dataframe into an excel spreadsheet. Loops through all of the queries.
+      - Parameters: Takes in a writer, which is basically an excel document.
+      - Returns: Nothing.
+      - Called by: ```queryToExcelSheet```
+
+### SQL Walkthrough:
+There are two main SQL files, the master function which is what does most of the work in this process, and the cleaning query that is used to fix weird anomalies in the scraped data.
+
+  #### **Clean Raw Queries**
+  Very basic queries, this is just done as a measure to fix things that will upset the system. For instance when scraping ```NYSCR``` sometimes the Due Date is called ```Due Date``` but it is also sometimes called ```End Date``` so we want to change that to be uniform. We also sometimes will need to cut strings short or in half depending on the situation.
+
+  #### **Master Function Query**
+  The first thing done is to truncate each sites respective pivotTables, and then inserting the raw data into the pivot table like so:
+  ```
+  insert into NYSCR_pvt
+  SELECT jobID, Website, [Title:], [Company:], [Category:], [dateInserted:], [Due Date:], [Issue Date:], [Location:], [URL:], [Ad Type:]
+  FROM    (   SELECT A.jobID, resultText,  labelText, Website
+              FROM NYSCR_raw A
+          ) AS P
+          PIVOT
+          (   MAX(resultText)
+              FOR labeltext in ([Title:], [Company:], [Category:], [dateInserted:], [Due Date:], [Issue Date:], [Location:], [URL:], [Ad Type:])
+          ) AS  PVT
+  ```
+  What is in the [ ] is the only thing different for each site, and this is what the labels are from each site.
+
+  We then insert this pivoted data into the master table with all of the site like so:
+  ```
+  insert into master_table(JobDescription, Website, DueDate, IssueDate, InsertDate, RequestType, JobURL, JobLocation, Category, Expired)
+  select [Title:], [Website], cast([Due Date:] as datetime), cast(replace(replace( [Issue Date:], char(10), ''), char(13), '') as date),cast([dateInserted:] as datetime), [Type:], [URL:], [Location:], [Classification:], 'No'
+  from DASNY_pvt
+  WHERE DASNY_pvt.[Title:] not in(select JobDescription from master_table);
+  ```
+
+  All we need to do here is align the labels from each sites pivot table to the master tables labels. We want to avoid inserting information already in the master table.
+
+  We then deal with the master and current table. We mark jobs as expired if they are done, we delete expired jobs from the current table, delete duplicates from the master table, and then set all of the jobs in the current table to old. We also cut off any job description that is too long so that our tables don't crash.
+
+  We then insert all of the current jobs into the current table using:
+  ```
+  INSERT INTO current_table (JobDescription, Website, Company, DueDate, IssueDate, InsertDate, RequestType, JobURL, JobLocation, Category, Status, masterJobId)
+  SELECT distinct JobDescription, Website, Company, DueDate, IssueDate, InsertDate, RequestType, JobURL, JobLocation, Category, 'New', master_table.JobID
+  FROM master_table
+  WHERE master_table.JobDescription not in(select JobDescription from current_table) and master_table.DueDate > GETDATE();
+  ```
+
+  After this is done, we truncate the raw tables, and repeate the same process with the events.
 
 ## Adding a Site
 
