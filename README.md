@@ -93,6 +93,10 @@ The most important files to have on your computer are the [Python Master Functio
 - Starts with importing the libraries mentioned in [Installation](#installation).
 - Connects to SQL server.
 - Creates lists to store information.
+- ```def mainFunction():``` The main function of the script that will call all of the important functions and complete the process.
+  - Parameters: None.
+  - Returns: Nothing.
+  - Called by: None
 
 #### **Scraping Main Functions**
   - ```def searchAndUpload(container, labelHTML, resultHTML, titleHTML, labelDef, resultDef, titleDef, databaseName, jobNumber, pageNumber, site):``` Will scrape all of the relevant information from a job, and then upload this information to an SQL raw table.
@@ -162,6 +166,18 @@ The most important files to have on your computer are the [Python Master Functio
     - Returns: Nothing.
     - Called by: ```searchAndUpload```
 
+#### **Exporting Main Functions**
+- ```def queryToExcelSheet():``` Will create an excel file from SQL queries.
+  - Walkthrough: First we grab the SQL queries we want to use from the text file, then we load the data from the SQL tables into a dataframe, then we take this data and put it into two different excel spreadsheets, one is updating the master sheet and one is the daily excel file.
+  - Parameters: None.
+  - Returns: Nothing.
+  - Called by: ```mainFunction```
+- ```def sendEmail():``` Sends email to the team using a premade gmail account. Attached is the excel file that was created.
+  - Walkthrough: First we open up the email login file, then we find the latest created excel file, then we create the body of the email, the HTML variable is the table that is created, as shown below. This is all then loaded on an yagmail object and sent to all the email addresses we want.
+  
+  - Parameters: None.
+  - Returns: Nothing.
+
 #### **Exporting Helping Functions**
   - ```def splitKeyWordFile():``` Opens up the keyword file and fills the queries and sheets list.
     - Parameters:  None
@@ -175,6 +191,15 @@ The most important files to have on your computer are the [Python Master Functio
     - Parameters: None.
     - Returns: Technically nothing but fills array with how many new records have been inserted.
     - Called by: ```mainFunction```
+  - ```def writeToExcel(writer):``` Will write a dataframe into an excel spreadsheet. Loops through all of the queries.
+    - Parameters: Takes in a writer, which is basically an excel document.
+    - Returns: Nothing.
+    - Called by: ```queryToExcelSheet```
+
 ## Adding a Site
 
 ## Typical Errors
+- Creating failures
+- No email is getting sent
+- Person in specific recieving emails
+- No jobs are being shown as added.
