@@ -1,6 +1,6 @@
 # AM Automated Opportunity Capture
 ## Introduction
-This is the automated oppourtunity hunter for Alvarez and Marsal's Forensic Technology Services team.
+This is the Automated Oppourtunity Hunter for Alvarez and Marsal's Forensic Technology Services team.
 The tool will go out to sites requested by the team, and will scrape information about various
 RFPs, RFIs, networking events, and various other opportunities that could result in more projects for the team. After this information is scraped, it is stored in a SQL database, and then a daily report
 on the tools findings will be emailed to the team.
@@ -40,10 +40,12 @@ on the tools findings will be emailed to the team.
     - [Labels](#labels)
     - [Results](#results)
     - [Differences in Sites](#Differences-in-Sites)
+  - [Python Adjustments](#python-Adjustments)
+  - [SQL Adjustments](#sql-Adjustments)
 * [Typical Errors](#typical-errors)
 
 ## Project Status
-###### **Version 1.2**
+###### **Version 2.2**
 
 Stable build is currently ready. Automated reports sent out daily. Functionality is currently being expanded on.
 
@@ -263,13 +265,15 @@ In order to sucessfully add a site to be scraped you need to:
 
 ### Looking at HTML
 When looking at the site you want to scrape, first pull up the search page with as many results as possible. If you would like, you can add filters on the site, as long as these filters effect the url. In general most sites' HTML is formatted in a similar way. Each oppourtunity will be in its own element, and within that element there will be a class for the label, and then a class for the information to be displayed. You want to look for these elements in the site when scraping:
-1. URL
-2. What defines an individual listing
-3. What defines the title
-4. What defines the label text
-5. What defines the result text
-6. Any other information you can scrape
+1. URL.
+2. What defines an individual listing.
+3. What defines the title.
+4. What defines the label text.
+5. What defines the result text.
+6. Any other information you can scrape.
 7. What makes this site different.
+8. How many pages you will be scraping.
+9. How many opportunities are on each page.
 
 ### URL
 This one is the easiest to understand. The more specific the url, the better.
@@ -282,31 +286,119 @@ is much better than
 
 Also notice where there are variables that we want to manipulate. Usually this is pageNumber and category. Since the only thing we are going to manipulate is page number, we need to keep in mind where it is (```page=1``` at the end).
 
-### Individual Listing
+#### Individual Listing
 Each specific event or job is in what is called a 'container'. The best way to find this is to open up the website and inspect element in Google Chrome (```F12```).  The job container is the farthest out object that encompasses all of the information for that specific job. See below for an example. Note the HTML object name (in this case ```<div>```) and the class name (in this case ```"views-row"```). This will be the same for every site.
 <br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Job%20Container.png"><br>
 
-### Titles
+#### Titles
 More often than not the title will have its own HTML element in the job container. Sometimes there will be even more information than just the title, such as the URL of the specific opportunity, so you can be crafty with how you scrape (like looking for a ```<a>``` tag). In this specific situation we want to note the HTML tag of the title (```<div>```), the class of the title (```rfp-bid-title```), and any other information (the url has a tag of ```<a>```).
 <br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Title.png"><br>
 
-### Labels
+#### Labels
 Almost every site also has labels. I define labels as the text next to the important information. We want to scrape this so that we can use pivot tables later. The way we upload to SQL is by inputing the label and the text side by side, so its important that for every label we scrape it has a corresponding result text. Some example labels are **Due Date:**, **Status**, **Location**, and **Category**. Take note of every type of label you are scraping for later, as well as the HTML tag of the label (```<td>```) and the class of the label (nothing in this case).
 <br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Label%20Text.png"><br>
 
-### Results
+#### Results
 Result text is what I call the actual information we are scrapping. Sometimes this information can be tied to the label which requires a little bit of hard coding. Some example results are **10/23/19**, **Active**, **New York**, and **RFP**. It is ok if the label and the result use the same HTML tag, just make sure you use classes. Its also important not to be too specific for the label text, because with BeautifulSoup you are able to grab just the text. For instance in the example I am about to provide, notice how I am not using the ```<time>``` tag. Take note of the HTML tag of the result (```<td>```) and the class of the result (```fieldValue```).
 <br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Label%20Text.png"><br>
 
-## Differences in Sites
+#### Differences in Sites
 Every site is different so it is important to note of differences from the norm. Here are a few differences in sites that I have run across, but every site is different
-- Scraping their API is easier
+- Scraping their API is easier.
 - Individual opportunities don't have a url.
-- Labels are tied together with results
-- There are no labels
-- There is a parallax effect (infinite scrolling)
+- Labels are tied together with results.
+- There are no labels.
+- There is a parallax effect (infinite scrolling).
 - You have to login to access important information.
 - The way the page numbers are done in the URL is different.
+
+### Python Adjustments
+The first thing you you want to do is add another function call in ```mainFunction```. If there are multiple categories from that site you want to scrape, do something like I did with ```RFPDB```. Here is the basis of the function call.
+
+```
+def scrapeSite(site, labelHTML, resultHMTL, labelDef, resultDef,
+               containerHTML, containerDef, titleHTML, titleDef, numberOfPages,
+               jobsPerPage):
+```
+
+You want to insert the information that we found while [Looking at the HTML](#looking-at-html) into this. For more information, check out the walkthrough at [Scraping Main Functions](#Scraping-main-functions).
+
+You are next going to want to put the URL of the site in ```def getURL(site, startingNumber, category):```. The format should be something similar to this:
+```
+elif(site == 'RFPDB'):
+    urlFromFunction = 'http://www.rfpdb.com/view/category/name/{0}/page/{1}'.format(category, startingNumber)
+```
+
+You will then need to update ```def getScrapingCase(site):``` and ```def getURLCase(site):``` accordingly.
+
+In a perfect world, you are now done with the Python part. Realistically, the site will have its own issues, and you will have to change this function based on what you need:
+```
+def searchAndUpload(container, labelHTML, resultHTML, titleHTML, labelDef,
+                    resultDef, titleDef, databaseName, jobNumber, pageNumber,
+                    site):
+```
+
+Specifically, you will have to create a line regarding the URL similar to this:
+
+```
+elif(site == 'DASNY'):
+    link = 'https://www.dasny.org{0}'.format(title.find('a')['href'])
+```
+
+More information about the side functions can be found [here](#scraping-helping-functions).
+
+### SQL Adjustments
+First, you will need to create a Raw and Pivot table for the site. These should be called ```site_raw``` and ```site_pvt``` respectively. The create table query should look this so:
+
+```
+CREATE TABLE [DASNY_raw](
+	[jobID] [int] NULL,
+	[labelText] [nvarchar](max) NULL,
+	[resultText] [nvarchar](max) NULL,
+	[Website] [nvarchar](max) NULL
+);
+```
+
+We are then going to create the pivot table. jobID, website, dateInserted, and URL: are constants for all sites, but the other columns will be in the ```resultText``` column from the raw table. An example is below:
+
+```
+CREATE TABLE [DASNY_pvt](
+	[jobID] [int] NULL,
+	[Website] [nvarchar](max) NULL,
+	[Title:] [nvarchar](max) NULL,
+	[Solicitation #:] [nvarchar](max) NULL,
+	[Issue Date:] [nvarchar](max) NULL,
+	[Due Date:] [nvarchar](max) NULL,
+	[Classification:] [nvarchar](max) NULL,
+	[Location:] [nvarchar](max) NULL,
+	[Type:] [nvarchar](max) NULL,
+	[Goals (%):] [nvarchar](max) NULL,
+	[Status:] [nvarchar](max) NULL,
+	[dateInserted:] [nvarchar](max) NULL,
+	[URL:] [nvarchar](max) NULL
+);
+```
+
+Then make any adjustments you need to ```cleanRawSQL``` if there is something wrong with the data or results.
+
+After this you move on to ```Master Function Query```. Add these two snipits to the code, and replace what is inside the [ ] with the column names you set before when you created the pivot table.
+
+```
+truncate table DASNY_pvt;
+
+```
+```
+insert into DASNY_pvt
+SELECT jobID, Website, [Title:], [Solicitation #:], [Issue Date:], [Due Date:], [Classification:], [Location:], [Type:], [Goals (%):], [Status:], [dateInserted:], [URL:]
+FROM    (   SELECT A.jobID, resultText,  labelText, Website
+            FROM DASNY_raw A
+        ) AS P
+        PIVOT
+        (   MAX(resultText)
+            FOR labeltext in ([Title:], [Solicitation #:], [Issue Date:], [Due Date:], [Classification:], [Location:], [Type:], [Goals (%):], [Status:], [dateInserted:], [URL:])
+        ) AS  PVT;
+
+```
 
 ## Typical Errors
 - Creating failures
