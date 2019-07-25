@@ -51,15 +51,15 @@ on the tool’s findings will be emailed to the team.
   - [No Jobs Added](#No-Jobs-Added)
 
 ## Project Status
-###### **Version 2.2**
+###### **Version 2.3**
 
 Stable build is currently ready. Automated reports sent out daily. Functionality is currently being expanded on.
 
 ###### **Recently Added**
-Created this README as a guide to the application.
+Created this README as a guide to the application. Spelt Opportunity correctly.
 
 #### To Do:
-- [ ] Correctly spell Opportunity everywhere.
+- [X] Correctly spell Opportunity everywhere.
 - [X] Create this README.
 - [ ] Create Presentation.
 - [ ] Look to implement dictionaries.
