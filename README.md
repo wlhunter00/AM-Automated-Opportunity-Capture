@@ -42,7 +42,12 @@ on the tools findings will be emailed to the team.
     - [Differences in Sites](#Differences-in-Sites)
   - [Python Adjustments](#python-Adjustments)
   - [SQL Adjustments](#sql-Adjustments)
+- [Adding an Email](#Adding-an-Email)
 * [Typical Errors](#typical-errors)
+  - [Failures Adding a Site](#Failures-Adding-a-Site)
+  - [No Email Sent](#No-Email-Sent)
+  - [Person Not Receiving Emails](#Person-Not-Receiving-Emails)
+  - [No Jobs Added](#No-Jobs-Added)
 
 ## Project Status
 ###### **Version 2.2**
@@ -400,8 +405,30 @@ FROM    (   SELECT A.jobID, resultText,  labelText, Website
 
 ```
 
+And then at the end of the script, truncate the raw table like so:
+
+```
+truncate table DASNY_raw;
+```
+
+And thats it! If everything goes right these are all the steps you need to add a site to the process. Usually things will go wrong though, generally with the data that is being put into the pivot tables. Make sure you clean the data as much as possible.
+
+## Adding an Email
+To add an email to recieve the daily report go to ```Email Information.txt``` file that is stored in the documents folder on the local computer (for security) and add an address to the list directly under the last email address.
+
 ## Typical Errors
-- Creating failures
-- No email is getting sent
-- Person in specific recieving emails
-- No jobs are being shown as added.
+The easiest thing to do when debugging is look at the ```mainFunction``` in the ```Python Master Function.py```. The program was designed to print outputs as it goes through the process, so you will be able to tell where exactly in the process it stopped working. I have divided the main function into four blocks, scraping, SQL, exporting, and sending the email. I reccomend commenting out all of the blocks but one, so that you can run them one at a time and and figure out what really broke. Generally, the most volatile chunk is the exporting to Excel.
+
+### Failures Adding a Site
+Many things can go wrong when adding a site. It is very important that you [analyze the website well](#Looking-at-HTML). A good rule of thumb is to ```select *``` the raw table and see how things went. You may have to do a lot of cleaning of the data to put it in the ```master_table```. A big thing that can mess with the program is dates, as many sites do these differently, so you may have to use substrings to rearrange the dates. I reccomend branching the ```Python Master Function.py``` when you add a new site, because more often than note things will go wrong. Usually logic will be broken in ```searchAndUpload```.
+
+### No Email Sent
+There are many reasons why an email wouldn't have been sent, but the best thing thing to do is to run the script yourself and see where it crashes. If it doesn't crash, then there is something wrong with the email or exporting to Excel chunks most likely.
+
+### Person Not Receiving Emails
+If one person in particular is not receiving emails, there are two possible issues. First, check to see if they were correctly added to the mailing list (see [Adding an Email](#adding-an-email)).
+
+Second, it could be an issue with A&M's blocker. Go to [Mimecast](https://www.mimecast.com/), login to your A&M account, go to your mailbox and to the advanced tab, and then look for bounced or rejected emails. Alternatively, you will recieve an email from Mimecast saying this email was blocked from amopportunityhunter@gmail.com, and you will want to permit all emails coming from this sender.
+
+### No Jobs Added
+If an email was sent, but there were no jobs added, then the exporting to Excel and emailing chunks were most likely ok. You are going to want to look at the scraping and the SQL functions. Usually if something is really wrong with the scraping function the script won't even run and that's how you know. If the script is running but no jobs are being shown, then something is wrong with the SQL queries, in particular with the interactions between the main and current tables most likely. Check to see if there is a weird insertion that is ruining things.

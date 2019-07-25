@@ -461,6 +461,7 @@ def sendEmail():
 
 
 def mainFunction():
+    # Scraping
     scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
                'tr', 'r1', '', '', 2, 50)
     scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
@@ -475,12 +476,18 @@ def mainFunction():
         print('RFPDB - ' + row["category"] + ' - completed.')
     scrapeEventbrite()
     print('All sites scraped.')
+
+    # SQL Queries
     executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\cleanRawSQL.sql")
     print('All tables cleaned.')
     executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
     print('Master SQL Function Complete.')
+
+    # Exporting to Excel
     queryToExcelSheet()
     loadCountingFrames()
+
+    # Sending Email
     sendEmail()
     print('Master Function Complete.')
     cursor.close()
