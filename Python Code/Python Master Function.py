@@ -1,5 +1,8 @@
-# TODO: Implement dictionaries
+# Version 1.2
+# TO-DO: Implement dictionaries
 # look at what is being looped-and if it has to be.
+# Scrape 10Times.com using infinite scrolling scrapeEventbrite
+# Use FBO.gov's API to scrape their RFPs.
 
 # Important imports
 import requests
@@ -29,12 +32,6 @@ dataFrames = []
 dfForCount = []
 
 
-# Function that will simply truncate the table through python
-# - mainly to make life easier
-def truncateSQL(tableName):
-    cursor.execute('truncate table {0}'.format(tableName))
-
-
 # Removes escape characters
 def removeEscape(text):
     return text.replace('\'', '\'\'')
@@ -46,29 +43,6 @@ def parseASCII(text):
         return ''.join(filter(lambda x: x in string.printable, text)).replace('', '')
     else:
         return ''
-
-
-# Given a file, it will execute any .sql files.
-def executeScriptsFromFile(filename):
-    # Open and read the file as a single buffer
-    fd = open(filename, 'r')
-    sqlFile = fd.read()
-    fd.close()
-
-    # all SQL commands (split on ';')
-    sqlCommands = sqlFile.split(';')
-
-    # Execute every command from the input file
-    for command in sqlCommands:
-        # This will skip and report errors
-        # For example, if the tables do not yet exist, this will skip over
-        # the DROP TABLE commands
-        try:
-            cursor.execute(command)
-            conn.commit()
-            print("{0} excecuted.".format(str(command)))
-        except:
-            print("Command skipped: {0}".format(str(command)))
 
 
 # Pass in the number of pages you want to scrape and the amount of jobs you
@@ -222,6 +196,7 @@ def searchAndUpload(container, labelHTML, resultHTML, titleHTML, labelDef,
         # If it has one tag we want to insert the item, then the sibiling items
         # found in the HTML.
         if(getScrapingCase(site) == 'OneTag'):
+            # Look to see if this is doing it correctly
             insertIntoSQL(databaseName, jobNumber,
                           container_labels[num].find(resultHTML, class_=resultDef).text,
                           container_labels[num].find(resultHTML, class_=resultDef).next_sibling,
@@ -258,6 +233,7 @@ def searchAndUpload(container, labelHTML, resultHTML, titleHTML, labelDef,
         insertIntoSQL(databaseName, jobNumber, 'URL:',
                       getURL(site, pageNumber, ''), site)
     # For every job insert the time it was scraped
+    # SQL mark the time it was inserted
     insertIntoSQL(databaseName, jobNumber, 'dateInserted:',
                   datetime.now().strftime('%m/%d/%Y %H:%M:%S'), site)
 
@@ -346,6 +322,30 @@ def scrapeEventbrite():
                             removeEscape(parseASCII(i['venue']['address']['localized_address_display']))))
                 conn.commit()
             print('Eventbrite page parsed: {0} page {1}'.format(category, str(pageNumber)) )
+
+
+# Given a file, it will execute any .sql files.
+# Update SQL tables
+def executeScriptsFromFile(filename):
+    # Open and read the file as a single buffer
+    fd = open(filename, 'r')
+    sqlFile = fd.read()
+    fd.close()
+
+    # all SQL commands (split on ';')
+    sqlCommands = sqlFile.split(';')
+
+    # Execute every command from the input file
+    for command in sqlCommands:
+        # This will skip and report errors
+        # For example, if the tables do not yet exist, this will skip over
+        # the DROP TABLE commands
+        try:
+            cursor.execute(command)
+            conn.commit()
+            print("{0} excecuted.".format(str(command)))
+        except:
+            print("Command skipped: {0}".format(str(command)))
 
 
 # Function that goes through text file and stores queries and sheets into
@@ -460,27 +460,38 @@ def sendEmail():
     print('Email Sent.')
 
 
-scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
-           'tr', 'r1', '', '', 2, 50)
-scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
-           'div', 'views-field views-field-nothing-1', 'div', 'rfp-bid-title',
-           2, 10)
-scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
-           'div', 'search-result', 'div', 'search-result-header', 50, 20)
-RFPDBCategories = pd.read_sql_query('select * from RFPDBCategories_tbl', conn)
-for index, row in RFPDBCategories.iterrows():
-    scrapeSite('RFPDB', row["category"], '', '', '',
-               '', '', 'a', '', row["pageNumbers"], 12)
-    print('RFPDB - ' + row["category"] + ' - completed.')
-scrapeEventbrite()
-print('All sites scraped.')
-executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\cleanRawSQL.sql")
-print('All tables cleaned.')
-executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
-print('Master SQL Function Complete.')
-queryToExcelSheet()
-loadCountingFrames()
-sendEmail()
-print('Master Function Complete.')
-cursor.close()
-conn.close()
+def mainFunction():
+    # Scraping
+    scrapeSite('NYSCR', 'div', 'div', "labelText", "resultText",
+               'tr', 'r1', '', '', 2, 50)
+    scrapeSite('DASNY', 'td', 'td', '', 'fieldValue',
+               'div', 'views-field views-field-nothing-1', 'div', 'rfp-bid-title',
+               2, 10)
+    scrapeSite('GOVUK', 'div', 'strong', 'search-result-entry', '',
+               'div', 'search-result', 'div', 'search-result-header', 50, 20)
+    RFPDBCategories = pd.read_sql_query('select * from RFPDBCategories_tbl', conn)
+    for index, row in RFPDBCategories.iterrows():
+        scrapeSite('RFPDB', row["category"], '', '', '',
+                   '', '', 'a', '', row["pageNumbers"], 12)
+        print('RFPDB - ' + row["category"] + ' - completed.')
+    scrapeEventbrite()
+    print('All sites scraped.')
+
+    # SQL Queries
+    executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\cleanRawSQL.sql")
+    print('All tables cleaned.')
+    executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
+    print('Master SQL Function Complete.')
+
+    # Exporting to Excel
+    queryToExcelSheet()
+    loadCountingFrames()
+
+    # Sending Email
+    sendEmail()
+    print('Master Function Complete.')
+    cursor.close()
+    conn.close()
+
+
+mainFunction()

@@ -31,7 +31,8 @@ def executeScriptsFromFile(filename):
             print("Command skipped: " + str(command))
 
 
-executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
+executeScriptsFromFile(
+    "C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
 cursor.close()
 conn.close()
 print('All sites scraped')
