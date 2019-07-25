@@ -55,11 +55,11 @@ on the tools findings will be emailed to the team.
 Stable build is currently ready. Automated reports sent out daily. Functionality is currently being expanded on.
 
 ###### **Recently Added**
-Added scraped events from Eventbrite to the daily report.
+Created this README as a guide to the application.
 
 #### To Do:
 - [ ] Correctly spell Opportunity everywhere.
-- [ ] Create this README.
+- [X] Create this README.
 - [ ] Create Presentation.
 - [ ] Look to implement dictionaries.
 - [ ] Make sure there aren't uneeded loops in main script.
