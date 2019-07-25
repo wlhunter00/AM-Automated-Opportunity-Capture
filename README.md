@@ -98,7 +98,7 @@ Then you are going to set your PATH and ```python -m pip install``` in the comma
 
 (Optionally) you can install [Microsoft SQL Server](https://go.microsoft.com/fwlink/?linkid=853017) to view the data yourself and to debug.
 
-The most important files to have on your computer are the [Python Master Function](https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Python%20Code/Python%20Master%20Function.py), [Master SQL Query](https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/SQL%20Scripts/Master%20Function%20Query.sql), [Clean Raw SQL Query](https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/SQL%20Scripts/cleanRawSQL.sql), and the [SQL to Python Keywords](https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/SQL-Python%20Keywords%20Queries.txt) files. Finally, you will need the **Email Information** text file. This file is not found in the GitHub, as it contains sensitive information.
+The most important files to have on your computer are the [Python Master Function](https://github.com/wlhunter00/AM-Automated-Opportunity-Capture/blob/master/Python%20Code/Python%20Master%20Function.py), [Master SQL Query](https://github.com/wlhunter00/AM-Automated-Opportunity-Capture/blob/master/SQL%20Scripts/Master%20Function%20Query.sql), [Clean Raw SQL Query](https://github.com/wlhunter00/AM-Automated-Opportunity-Capture/blob/master/SQL%20Scripts/cleanRawSQL.sql), and the [SQL to Python Keywords](https://github.com/wlhunter00/AM-Automated-Opportunity-Capture/blob/master/SQL-Python%20Keywords%20Queries.txt) files. Finally, you will need the **Email Information** text file. This file is not found in the GitHub, as it contains sensitive information.
 ## Walkthroughs
 
 ### Files Walkthrough:
@@ -106,8 +106,8 @@ The most important files to have on your computer are the [Python Master Functio
 - The Excel Sheets folder houses the export sheets from this application.
 - The Presentation Photos were simply used for screenshots.
 - The Weekly Reports house the PowerPoint presentations I have created throughout the internship.
-- The folder Python Code houses all the python scripts, the most important one being the [Python Master Function](https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Python%20Code/Python%20Master%20Function.py).
-- The folder SQL scripts houses all the SQL server queries, the most important ones being the [Master SQL Query](https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/SQL%20Scripts/Master%20Function%20Query.sql), and the [Clean Raw SQL Query](https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/SQL%20Scripts/cleanRawSQL.sql).
+- The folder Python Code houses all the python scripts, the most important one being the [Python Master Function](https://github.com/wlhunter00/AM-Automated-Opportunity-Capture/blob/master/Python%20Code/Python%20Master%20Function.py).
+- The folder SQL scripts houses all the SQL server queries, the most important ones being the [Master SQL Query](https://github.com/wlhunter00/AM-Automated-Opportunity-Capture/blob/master/SQL%20Scripts/Master%20Function%20Query.sql), and the [Clean Raw SQL Query](https://github.com/wlhunter00/AM-Automated-Opportunity-Capture/blob/master/SQL%20Scripts/cleanRawSQL.sql).
 
 ### Python Master Function Walkthrough:
 - Starts with importing the libraries mentioned in [Installation](#installation).
@@ -194,7 +194,7 @@ The most important files to have on your computer are the [Python Master Functio
     - Called by: ```mainFunction```
   - ```def sendEmail():``` Sends email to the team using a premade Gmail account. Attached is the excel file that was created.
     - Walkthrough: First we open the email login file, then we find the latest created excel file, then we create the body of the email, the HTML variable is the table that is created, as shown below. This is all then loaded on a Yagmail object and sent to all the email addresses we want.
-    <br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Example%20Table.PNG"><br>
+    <br><img src="https://github.com/wlhunter00/AM-Automated-Opportunity-Capture/blob/master/Images%20for%20Readme/Example%20Table.PNG"><br>
     - Parameters: None.
     - Returns: Nothing.
 
@@ -294,22 +294,22 @@ Also notice where there are variables that we want to manipulate. Usually this i
 
 #### Individual Listing
 Each specific event or job is in what is called a 'container'. The best way to find this is to open the website and inspect element in Google Chrome (```F12```).  The job container is the farthest out object that encompasses all the information for that specific job. See below for an example. Note the HTML object name (in this case ```<div>```) and the class name (in this case ```"views-row"```). This will be the same for every site.
-<br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Job%20Container.png"><br>
+<br><img src="https://github.com/wlhunter00/AM-Automated-Opportunity-Capture/blob/master/Images%20for%20Readme/Job%20Container.png"><br>
 
 #### Titles
 Often the title will have its own HTML element in the job container. Sometimes there will be even more information than just the title, such as the URL of the specific opportunity, so you can be crafty with how you scrape (like looking for a ```<a>``` tag). In this specific situation we want to note the HTML tag of the title (```<div>```), the class of the title (```rfp-bid-title```), and any other information (the url has a tag of ```<a>```).
-<br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Title.png"><br>
+<br><img src="https://github.com/wlhunter00/AM-Automated-Opportunity  -Capture/blob/master/Images%20for%20Readme/Title.png"><br>
 
 #### Labels
 Almost every site also has labels. I define labels as the text next to the important information. We want to scrape this so that we can use pivot tables later. The way we upload to SQL is by inputting the label and the text side by side, so it’s important that for every label we scrape it has a corresponding result text. Some example labels are **Due Date:**, **Status**, **Location**, and **Category**. Take note of every type of label you are scraping for later, as well as the HTML tag of the label (```<td>```) and the class of the label (nothing in this case).
-<br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Label%20Text.png"><br>
+<br><img src="https://github.com/wlhunter00/AM-Automated-Opportunity -Capture/blob/master/Images%20for%20Readme/Label%20Text.png"><br>
 
 #### Results
 Result text is what I call the actual information we are scrapping. Sometimes this information can be tied to the label which requires a little bit of hard coding. Some example results are **10/23/19**, **Active**, **New York**, and **RFP**. It is ok if the label and the result use the same HTML tag, just make sure you use classes. It’s also important not to be too specific for the label text, because with BeautifulSoup you are able to grab just the text. For instance, in the example I am about to provide, notice how I am not using the ```<time>``` tag. Take note of the HTML tag of the result (```<td>```) and the class of the result (```fieldValue```).
-<br><img src="https://github.com/wlhunter00/AM-Automated-Oppurtinity-Capture/blob/master/Images%20for%20Readme/Label%20Text.png"><br>
+<br><img src="https://github.com/wlhunter00/AM-Automated-Opportunity -Capture/blob/master/Images%20for%20Readme/Label%20Text.png"><br>
 
 #### Differences in Sites
-Every site is different, so it is important to note of differences from the norm. Here are a few differences in sites that I have run across, but every site is different
+Every site is different, so it is important to note of differences from the norm. Here are a few differences in sites that I have run across, but every site is different:
 - Scraping their API is easier.
 - Individual opportunities don't have a url.
 - Labels are tied together with results.

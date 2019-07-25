@@ -352,7 +352,7 @@ def executeScriptsFromFile(filename):
 # seperate lists.
 def splitKeyWordFile():
     keywordFile = open(('C:/Users/whunter/Documents/GitHub/AM-Automated-'
-                        'Oppurtinity-Capture/SQL-Python Keywords Queries.txt'), "r")
+                        'Opportunity-Capture/SQL-Python Keywords Queries.txt'), "r")
     lines = keywordFile.readlines()
     for line in lines:
         splitList = line.split(':')
@@ -389,7 +389,7 @@ def writeToExcel(writer):
 def queryToExcelSheet():
     splitKeyWordFile()
     loadDataFrames()
-    with pd.ExcelWriter((r'C:\Users\whunter\Documents\GitHub\AM-Automated-Oppurtinity-Capture\Excel Sheets\Results_{0}.xlsx').format(datetime.now().strftime('%m-%d-%Y#%H%M'))) as writer:
+    with pd.ExcelWriter((r'C:\Users\whunter\Documents\GitHub\AM-Automated-Opportunity-Capture\Excel Sheets\Results_{0}.xlsx').format(datetime.now().strftime('%m-%d-%Y#%H%M'))) as writer:
         writeToExcel(writer)
     with pd.ExcelWriter(r'C:\Users\whunter\Box\OppHunter\OppHunterResults.xlsx') as writer:
         writeToExcel(writer)
@@ -405,7 +405,7 @@ def sendEmail():
     senderEmail = lines[1]
     password = lines[3]
     listAddresses = lines[4:]
-    list_of_reports = glob.glob(r'C:\Users\whunter\Documents\GitHub\AM-Automated-Oppurtinity-Capture\Excel Sheets\*')
+    list_of_reports = glob.glob(r'C:\Users\whunter\Documents\GitHub\AM-Automated-Opportunity-Capture\Excel Sheets\*')
     latest_report = max(list_of_reports, key=os.path.getctime)
     subject = 'Opportunity Hunter Daily Update'
     # Stores string variables to be used in email.
@@ -478,9 +478,9 @@ def mainFunction():
     print('All sites scraped.')
 
     # SQL Queries
-    executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\cleanRawSQL.sql")
+    executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Opportunity-Capture\\SQL Scripts\\cleanRawSQL.sql")
     print('All tables cleaned.')
-    executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Oppurtinity-Capture\\SQL Scripts\\Master Function Query.sql")
+    executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Opportunity-Capture\\SQL Scripts\\Master Function Query.sql")
     print('Master SQL Function Complete.')
 
     # Exporting to Excel
