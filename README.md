@@ -17,9 +17,10 @@ on the tool’s findings will be emailed to the team.
 9. Attach the excel sheet and email the team the results using Yagmail and HMTL.
 
 ## Table of Contents
+* [Introduction](#introduction)
+* [Table of Contents](#table-of-contents)
 * [Project Status](#project-status)
   * [To Do](#to-do)
-* [Introduction](#introduction)
 * [Technologies](#technologies)
 * [Installation](#installation)
 * [Walkthroughs](#Walkthroughs)
