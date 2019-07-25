@@ -60,6 +60,7 @@ Stable build is currently ready. Automated reports sent out daily. Functionality
 - Spelt Opportunity correctly everywhere.
 - Fixed typos.
 - Renamed Job SQL tables.
+- Added README to email.
 
 #### To Do:
 - [X] Correctly spell Opportunity everywhere.
@@ -70,7 +71,8 @@ Stable build is currently ready. Automated reports sent out daily. Functionality
 - [ ] Scrape 10Times.com using infinite scrolling.
 - [ ] Use FBO.gov's API to scrape their RFPs.
 - [ ] Decentralize the PATHs.
-- [ ] Rename the job tables in SQL so that it is clearer that they are jobs (current and master).
+- [X] Rename the job tables in SQL so that it is clearer that they are jobs (current and master).
+- [X] Added README to email.
 
 ## Technologies
 Project was created with:

@@ -429,6 +429,9 @@ def sendEmail():
                      '<th>Jobs Data Related</th><th>Jobs Tech Related</th>'
                      '<th>Jobs Finance Related</th></tr>'
                      '<tr><td>New Additions</td><td align="center">')
+    readMePlug = ('<p>Access the <a href="https://github.com/wlhunter00/AM-Auto'
+                  'mated-Opportunity-Capture/blob/master/README.md">README'
+                  '</a><br><br> for the latest updates on the project</p><br><p>')
     html = (bodyParagraph
             + str(dataFrames[0].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[1].count(axis=0)[0])
@@ -449,7 +452,7 @@ def sendEmail():
             + '</td><td align="center">' + str(dataFrames[8].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[9].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[10].count(axis=0)[0])
-            + '<br></td></tr></table><p>' + update
+            + '<br></td></tr></table>' + readMePlug + update
             + '</p><br><br><p>Thank You.</p>'
             )
     print('Attachments Loaded. Connecting to Server.')

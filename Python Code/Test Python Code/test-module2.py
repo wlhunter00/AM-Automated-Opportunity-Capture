@@ -19,3 +19,8 @@ yeet2 = "test"
 yeet = "this {0} is a {1} string ".format(yeet1, yeet2)
 
 print(yeet)
+
+readMePlug = ('<p>Access the <a href="https://github.com/wlhunter00/AM-Auto'
+          'mated-Opportunity-Capture/blob/master/README.md">README'
+              '</a><br><br>README for the latest updates on the project</p><br><p>')
+print(readMePlug)
