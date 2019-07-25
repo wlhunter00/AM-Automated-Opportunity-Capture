@@ -439,7 +439,7 @@ def sendEmail():
             + '</td><td align="center">' + str(dfForCount[2].count(axis=0)[0])
             + '</td><td align="center">' + str(dfForCount[3].count(axis=0)[0])
             + '</td><td align="center">' + str(dfForCount[4].count(axis=0)[0])
-            + '</td></tr>' + '<tr><td>Total Jobs</td><td align="center">'
+            + '</td></tsr>' + '<tr><td>Total Jobs</td><td align="center">'
             + str(dataFrames[0].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[1].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[2].count(axis=0)[0])

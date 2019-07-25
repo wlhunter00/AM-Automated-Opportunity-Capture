@@ -1,11 +1,11 @@
-select * from current_table where status = 'new':newly_added_jobs
+select * from jobs_current_table where status = 'new':newly_added_jobs
 select * from event_current_table where recent = 'new':newly_added_events
-select * from current_table:jobs_current_table
+select * from jobs_current_table:jobs_current_table
 select * from event_current_table:events_current_table
-select * from master_table:jobs_master_table
+select * from jobs_master_table:jobs_master_table
 select * from event_master_table:events_master_table
 select * from event_current_table where title like '%networking%':networking_related_events
 select * from event_current_table where title like '%data%':data_related_events
-select * from current_table where JobDescription like '%data%':data_related_jobs
-select * from current_table where JobDescription like '%tech%':tech_related_jobs
-select * from current_table where JobDescription like '%financ%':finance_related_jobs
+select * from jobs_current_table where JobDescription like '%data%':data_related_jobs
+select * from jobs_current_table where JobDescription like '%tech%':tech_related_jobs
+select * from jobs_current_table where JobDescription like '%financ%':finance_related_jobs
