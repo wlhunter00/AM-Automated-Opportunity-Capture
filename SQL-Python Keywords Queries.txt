@@ -4,8 +4,8 @@ select * from jobs_current_table:jobs_current_table
 select * from event_current_table:events_current_table
 select * from jobs_master_table:jobs_master_table
 select * from event_master_table:events_master_table
-select * from event_current_table where title like '%networking%':networking_related_events
-select * from event_current_table where title like '%data%':data_related_events
-select * from jobs_current_table where JobDescription like '%data%':data_related_jobs
-select * from jobs_current_table where JobDescription like '%tech%':tech_related_jobs
-select * from jobs_current_table where JobDescription like '%financ%':finance_related_jobs
+select * from event_current_table where title like '%networking%' order by eventID desc:networking_related_events
+select * from event_current_table where title like '%data%' order by eventID desc:data_related_events
+select * from jobs_current_table where JobDescription like '%data%' order by JobID desc:data_related_jobs
+select * from jobs_current_table where JobDescription like '%tech%' order by JobID desc:tech_related_jobs
+select * from jobs_current_table where JobDescription like '%financ%' order by JobID desc:finance_related_jobs
