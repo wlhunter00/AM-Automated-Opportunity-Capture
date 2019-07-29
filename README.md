@@ -51,7 +51,7 @@ on the tool’s findings will be emailed to the team.
   - [No Jobs Added](#No-Jobs-Added)
 
 ## Project Status
-###### **Version 2.4**
+###### **Version 2.5**
 
 Stable build is currently ready. Automated reports sent out daily. Functionality is currently being expanded on.
 
@@ -60,18 +60,18 @@ Stable build is currently ready. Automated reports sent out daily. Functionality
 - [X] Spelt Opportunity correctly everywhere.
 - [X] Fixed typos.
 - [X] Renamed Job SQL tables.
-- [X] Added README to email.
+- [X] Added README to email
+- [X] Create Presentation.
 - [X] Add Data table directly into email.
+- [X] Remove escape characters in SQL.
 
 #### To Do:
-- [ ] Create Presentation.
 - [ ] Automatically format excel.
 - [ ] Look to implement dictionaries.
 - [ ] Make sure there aren't unneeded loops in main script.
 - [ ] Scrape 10Times.com using infinite scrolling.
 - [ ] Use FBO.gov's API to scrape their RFPs.
 - [ ] Decentralize the PATHs.
-- [ ] Remove escape characters in SQL.
 
 #### Bugs:
 - The data table at the end is weirdly spaced.
