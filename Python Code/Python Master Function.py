@@ -1,4 +1,4 @@
-# Version 2.2
+# Version 2.4
 # TO-DO: Implement dictionaries
 # look at what is being looped-and if it has to be.
 # Scrape 10Times.com using infinite scrolling scrapeEventbrite
@@ -14,6 +14,7 @@ import pandas as pd
 import glob
 import os
 import string
+import io
 # Connecting to SQL server
 conn = pyodbc.connect('Driver={SQL Server};'
                       'Server=jackson;'
@@ -395,6 +396,14 @@ def queryToExcelSheet():
         writeToExcel(writer)
 
 
+# Turns a Pandas Dataframe into an HTML table to be inserted into the email.
+def DFToHTML(dataframe):
+    str_io = io.StringIO()
+    dataframe.to_html(buf=str_io, classes='table table-striped')
+    html_str = str_io.getvalue()
+    return(html_str)
+
+
 # One function to send email
 def sendEmail():
     # Opening Local Email Text File to retrieve information. Then stores
@@ -429,9 +438,11 @@ def sendEmail():
                      '<th>Jobs Data Related</th><th>Jobs Tech Related</th>'
                      '<th>Jobs Finance Related</th></tr>'
                      '<tr><td>New Additions</td><td align="center">')
-    readMePlug = ('<p>Access the <a href="https://github.com/wlhunter00/AM-Auto'
+    readMePlug = ('<br><p>Access the <a href="https://github.com/wlhunter00/AM-Auto'
                   'mated-Opportunity-Capture/blob/master/README.md">README'
-                  '</a><br><br> for the latest updates on the project</p><br><p>')
+                  '</a> for the latest updates on the project</p><br><p>')
+    print('Exporting DF to HTML')
+    dfTable = DFToHTML(dataFrames[8])
     html = (bodyParagraph
             + str(dataFrames[0].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[1].count(axis=0)[0])
@@ -453,7 +464,10 @@ def sendEmail():
             + '</td><td align="center">' + str(dataFrames[9].count(axis=0)[0])
             + '</td><td align="center">' + str(dataFrames[10].count(axis=0)[0])
             + '<br></td></tr></table>' + readMePlug + update
-            + '</p><br><br><p>Thank You.</p>'
+            + '</p><br>'
+            +'<p style="font-weight:bold">Data Related Jobs:</p>'
+            + dfTable
+            + '<br><p>Thank You.</p>'
             )
     print('Attachments Loaded. Connecting to Server.')
     # Connecting to server

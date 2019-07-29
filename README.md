@@ -61,16 +61,21 @@ Stable build is currently ready. Automated reports sent out daily. Functionality
 - [X] Fixed typos.
 - [X] Renamed Job SQL tables.
 - [X] Added README to email.
+- [X] Add Data table directly into email.
 
 #### To Do:
 - [ ] Create Presentation.
 - [ ] Automatically format excel.
-- [ ] Add Data table directly into email.
 - [ ] Look to implement dictionaries.
 - [ ] Make sure there aren't unneeded loops in main script.
 - [ ] Scrape 10Times.com using infinite scrolling.
 - [ ] Use FBO.gov's API to scrape their RFPs.
 - [ ] Decentralize the PATHs.
+- [ ] Remove escape characters in SQL.
+
+#### Bugs:
+- The data table at the end is weirdly spaced.
+- New line characters are not being parsed out.
 
 ## Technologies
 Project was created with:
@@ -98,6 +103,7 @@ Then you are going to set your PATH and ```python -m pip install``` in the comma
 6. glob
 7. os
 8. requests
+9. io
 
 (Optionally) you can install [Microsoft SQL Server](https://go.microsoft.com/fwlink/?linkid=853017) to view the data yourself and to debug.
 
@@ -209,7 +215,7 @@ The most important files to have on your computer are the [Python Master Functio
     - ```def loadDataFrames():``` Loads list of data frames that is made up of the list of queries
       - Parameters: Technically nothing, but uses list of queries from ```splitKeyWordFile```
       - Returns: Technically nothing but fills dataFrames list with the result from the select query.
-      - Called by: ```queryToExcelSheet``
+      - Called by: ```queryToExcelSheet```
     - ```def loadCountingFrames():``` For the keyword queries, loads list of ints for how many new records were added
       - Parameters: None.
       - Returns: Technically nothing but fills array with how many new records have been inserted.
@@ -218,6 +224,10 @@ The most important files to have on your computer are the [Python Master Functio
       - Parameters: Takes in a writer, which is basically an excel document.
       - Returns: Nothing.
       - Called by: ```queryToExcelSheet```
+    - ```def DFToHTML(dataframe):``` Takes Pandas Dataframe and turns it into an HTML table.
+      - Parameters: A Pandas dataframe to be converted.
+      - Returns: HTML code as a string.
+      - Called by: ```sendEmail```
 
 ### SQL Walkthrough:
 There are two main SQL files, the master function which is what does most of the work in this process, and the cleaning query that is used to fix weird anomalies in the scraped data.
