@@ -108,6 +108,17 @@ Then you are going to set your PATH and ```python -m pip install``` in the comma
 (Optionally) you can install [Microsoft SQL Server](https://go.microsoft.com/fwlink/?linkid=853017) to view the data yourself and to debug.
 
 The most important files to have on your computer are the [Python Master Function](https://github.com/wlhunter00/AM-Automated-Opportunity-Capture/blob/master/Python%20Code/Python%20Master%20Function.py), [Master SQL Query](https://github.com/wlhunter00/AM-Automated-Opportunity-Capture/blob/master/SQL%20Scripts/Master%20Function%20Query.sql), [Clean Raw SQL Query](https://github.com/wlhunter00/AM-Automated-Opportunity-Capture/blob/master/SQL%20Scripts/cleanRawSQL.sql), and the [SQL to Python Keywords](https://github.com/wlhunter00/AM-Automated-Opportunity-Capture/blob/master/SQL-Python%20Keywords%20Queries.txt) files. Finally, you will need the **Email Information** text file. This file is not found in the GitHub, as it contains sensitive information.
+
+If you are setting up this application on a new SQL server, first install [Microsoft SQL Server](https://go.microsoft.com/fwlink/?linkid=853017). Then run ```Create All Tables.sql``` Found in the SQL scripts folder. Then alter:
+```
+conn = pyodbc.connect('Driver={SQL Server};'
+                      'Server=jackson;'
+                      'Database=OppHunter;'
+                      'Trusted_Connection=yes;')
+```
+
+By replacing the server and database name.
+
 ## Walkthroughs
 
 ### Files Walkthrough:
