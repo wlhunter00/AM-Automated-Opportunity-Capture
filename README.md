@@ -56,23 +56,21 @@ on the tool’s findings will be emailed to the team.
 Stable build is currently ready. Automated reports sent out daily. Functionality is currently being expanded on.
 
 ###### **Recently Added**
-- Created this README as a guide to the application.
-- Spelt Opportunity correctly everywhere.
-- Fixed typos.
-- Renamed Job SQL tables.
-- Added README to email.
+- [X] Created this README as a guide to the application.
+- [X] Spelt Opportunity correctly everywhere.
+- [X] Fixed typos.
+- [X] Renamed Job SQL tables.
+- [X] Added README to email.
 
 #### To Do:
-- [X] Correctly spell Opportunity everywhere.
-- [X] Create this README.
 - [ ] Create Presentation.
+- [ ] Automatically format excel.
+- [ ] Add Data table directly into email.
 - [ ] Look to implement dictionaries.
 - [ ] Make sure there aren't unneeded loops in main script.
 - [ ] Scrape 10Times.com using infinite scrolling.
 - [ ] Use FBO.gov's API to scrape their RFPs.
 - [ ] Decentralize the PATHs.
-- [X] Rename the job tables in SQL so that it is clearer that they are jobs (current and master).
-- [X] Added README to email.
 
 ## Technologies
 Project was created with:
