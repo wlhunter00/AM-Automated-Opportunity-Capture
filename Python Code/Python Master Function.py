@@ -1,4 +1,4 @@
-# Version 2.4
+# Version 2.5
 # TO-DO: Implement dictionaries
 # look at what is being looped-and if it has to be.
 # Scrape 10Times.com using infinite scrolling scrapeEventbrite
@@ -41,7 +41,7 @@ def removeEscape(text):
 # Gets rid of non ascii characters in string
 def parseASCII(text):
     if text is not None:
-        return ''.join(filter(lambda x: x in string.printable, text)).replace('', '')
+        return ''.join(filter(lambda x: x in string.printable, text)).replace('', '').replace('\\n', '').replace('\\t', '')
     else:
         return ''
 

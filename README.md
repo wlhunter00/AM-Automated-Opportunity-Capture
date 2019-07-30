@@ -51,7 +51,7 @@ on the tool’s findings will be emailed to the team.
   - [No Jobs Added](#No-Jobs-Added)
 
 ## Project Status
-###### **Version 2.4**
+###### **Version 2.5**
 
 Stable build is currently ready. Automated reports sent out daily. Functionality is currently being expanded on.
 
@@ -60,21 +60,22 @@ Stable build is currently ready. Automated reports sent out daily. Functionality
 - [X] Spelt Opportunity correctly everywhere.
 - [X] Fixed typos.
 - [X] Renamed Job SQL tables.
-- [X] Added README to email.
+- [X] Added README to email
+- [X] Create Presentation.
 - [X] Add Data table directly into email.
+- [X] Remove escape characters in SQL.
 
 #### To Do:
-- [ ] Create Presentation.
 - [ ] Automatically format excel.
 - [ ] Look to implement dictionaries.
 - [ ] Make sure there aren't unneeded loops in main script.
 - [ ] Scrape 10Times.com using infinite scrolling.
 - [ ] Use FBO.gov's API to scrape their RFPs.
 - [ ] Decentralize the PATHs.
-- [ ] Remove escape characters in SQL.
 
 #### Bugs:
 - The data table at the end is weirdly spaced.
+- The data table in the email is not having actual links in it
 - New line characters are not being parsed out.
 
 ## Technologies
@@ -108,6 +109,17 @@ Then you are going to set your PATH and ```python -m pip install``` in the comma
 (Optionally) you can install [Microsoft SQL Server](https://go.microsoft.com/fwlink/?linkid=853017) to view the data yourself and to debug.
 
 The most important files to have on your computer are the [Python Master Function](https://github.com/wlhunter00/AM-Automated-Opportunity-Capture/blob/master/Python%20Code/Python%20Master%20Function.py), [Master SQL Query](https://github.com/wlhunter00/AM-Automated-Opportunity-Capture/blob/master/SQL%20Scripts/Master%20Function%20Query.sql), [Clean Raw SQL Query](https://github.com/wlhunter00/AM-Automated-Opportunity-Capture/blob/master/SQL%20Scripts/cleanRawSQL.sql), and the [SQL to Python Keywords](https://github.com/wlhunter00/AM-Automated-Opportunity-Capture/blob/master/SQL-Python%20Keywords%20Queries.txt) files. Finally, you will need the **Email Information** text file. This file is not found in the GitHub, as it contains sensitive information.
+
+If you are setting up this application on a new SQL server, first install [Microsoft SQL Server](https://go.microsoft.com/fwlink/?linkid=853017). Then run ```Create All Tables.sql``` Found in the SQL scripts folder. Then alter:
+```
+conn = pyodbc.connect('Driver={SQL Server};'
+                      'Server=jackson;'
+                      'Database=OppHunter;'
+                      'Trusted_Connection=yes;')
+```
+
+By replacing the server and database name.
+
 ## Walkthroughs
 
 ### Files Walkthrough:
