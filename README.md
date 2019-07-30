@@ -75,6 +75,7 @@ Stable build is currently ready. Automated reports sent out daily. Functionality
 
 #### Bugs:
 - The data table at the end is weirdly spaced.
+- The data table in the email is not having actual links in it
 - New line characters are not being parsed out.
 
 ## Technologies
