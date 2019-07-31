@@ -64,6 +64,7 @@ Stable build is currently ready. Automated reports sent out daily. Functionality
 - [X] Create Presentation.
 - [X] Add Data table directly into email.
 - [X] Remove escape characters in SQL.
+- [X] Decentralize the PATHs.
 
 #### To Do:
 - [ ] Automatically format excel.
@@ -71,7 +72,7 @@ Stable build is currently ready. Automated reports sent out daily. Functionality
 - [ ] Make sure there aren't unneeded loops in main script.
 - [ ] Scrape 10Times.com using infinite scrolling.
 - [ ] Use FBO.gov's API to scrape their RFPs.
-- [ ] Decentralize the PATHs.
+- [ ] Add section on Task Manager to README.
 
 #### Bugs:
 - The data table at the end is weirdly spaced.
@@ -101,10 +102,8 @@ Then you are going to set your PATH and ```python -m pip install``` in the comma
 3. Pyodbc
 4. Yagmail
 5. Pandas
-6. glob
-7. os
-8. requests
-9. io
+6. requests
+7. openpyxl
 
 (Optionally) you can install [Microsoft SQL Server](https://go.microsoft.com/fwlink/?linkid=853017) to view the data yourself and to debug.
 

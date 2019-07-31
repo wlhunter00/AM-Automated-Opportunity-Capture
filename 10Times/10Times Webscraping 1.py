@@ -6,54 +6,52 @@ import time
 # 50 pages
 
 # connecting to website
-# url = 'https://10times.com/newyork-us'
-# response = requests.get(url)
+url = 'https://10times.com/newyork-us/technology'
+response = requests.get(url)
 
-# I used Firefox; you can use whichever browser you like.
-browser = webdriver.Chrome(executable_path=r'C:\\Users\\whunter\\Downloads\\chromedriver_win32 (1)\\chromedriver.exe')
-browser.get('https://10times.com/newyork-us')
 
-# Selenium script to scroll to the bottom, wait 3 seconds for the next batch of data to load, then continue scrolling.  It will continue to do this until the page stops loading new data.
-lenOfPage = browser.execute_script("window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
-match = False
-while(not match):
-    lastCount = lenOfPage
+def infiniteScroll(url, endElement, endCSS):
+    browser = webdriver.Chrome(executable_path=r'C:\\Users\\whunter\\Downloads\\chromedriver_win32 (1)\\chromedriver.exe')
+    browser.get(url)
     lenOfPage = browser.execute_script("window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
-    time.sleep(3)
-    displayed = browser.find_element_by_id('ajax').value_of_css_property('display')
-    print(displayed)
-    if ((lastCount == lenOfPage) and (displayed != 'block')):
-        print('end of page')
-        match = True
-print('scrolling done')
-# Now that the page is fully scrolled, grab the source code.
-source_data = browser.page_source
-print(source_data.encode("utf-8"))\
-soup = BeautifulSoup(source_data, "html.parser")
-print(soup.encode("utf-8"))
-browser.quit()
-print('cool')
-# print(type(bs_data))
-# soup = BeautifulSoup(response.text, "html.parser")
-# print(soup)
-# containers = soup.select('li[itemtype="http://schema.org/CreativeWork/RequestForProposal"]')
-# # print(containers[0])
-#
-# labels = []
-# results = []
-# labels.append(containers[0].find('a')['itemprop'])
-# results.append('http://www.rfpdb.com'+containers[0].find('a')['href'])
-# labels.append('title')
-# results.append(containers[0].find('a').text)
-# labels.append(containers[0].find('span', class_='comment')['itemprop'])
-# results.append(containers[0].find('span', class_='comment').text)
-# labels.append(containers[0].find('time')['itemprop'])
-# results.append(containers[0].find('time')['datetime'])
-# labels.append('Location')
-# results.append(containers[0].select_one('span[itemprop="address"]').text)
-# labels.append('Categories')
-# results.append(containers[0].find('ul', class_='categories').text)
-#
-#
-# for num in range(0, len(labels)):
-#     print(labels[num] + ': ' + results[num])
+    match = False
+    while(not match):
+        lastCount = lenOfPage
+        lenOfPage = browser.execute_script("window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
+        time.sleep(3)
+        displayed = browser.find_element_by_id(endElement).value_of_css_property(endCSS)
+        if ((lastCount == lenOfPage) and (displayed != 'block')):
+            print('end of page')
+            match = True
+    print('scrolling done')
+    code = browser.page_source
+    browser.quit()
+    return code
+
+
+# source_data = infiniteScroll('https://10times.com/newyork-us/technology', 'ajax', 'display')
+soup = BeautifulSoup(response.text, "html.parser")
+# soup = BeautifulSoup(source_data, "html.parser")
+
+# Categories: technology, business-consultancy, finance
+# Job object: <tr class="box">
+
+jobs = soup.findAll('tr', class_='box')
+
+
+def parseAds(jobContainer, requiredHTML, requiredClass):
+    for job in jobContainer:
+        title = job.find(requiredHTML, class_=requiredClass)
+        if not title:
+            jobs.remove(job)
+            continue
+    return jobContainer
+
+
+jobs = parseAds(jobs, 'td', 'text-drkr')
+
+for job in jobs:
+    timing = job.find('td', class_='text-drkr')
+    title = job.find('h2')
+    URL = title.href
+    print(url)
