@@ -352,7 +352,7 @@ def executeScriptsFromFile(filename):
 # Function that goes through text file and stores queries and sheets into
 # seperate lists.
 def splitKeyWordFile():
-    keywordFile = open(('C:/Users/whunter/Documents/GitHub/AM-Automated-'
+    keywordFile = open(('C:/Users/lkonig/Documents/GitHub/AM-Automated-'
                         'Opportunity-Capture/SQL-Python Keywords Queries.txt'), "r")
     lines = keywordFile.readlines()
     for line in lines:
@@ -390,9 +390,9 @@ def writeToExcel(writer):
 def queryToExcelSheet():
     splitKeyWordFile()
     loadDataFrames()
-    with pd.ExcelWriter((r'C:\Users\whunter\Documents\GitHub\AM-Automated-Opportunity-Capture\Excel Sheets\Results_{0}.xlsx').format(datetime.now().strftime('%m-%d-%Y#%H%M'))) as writer:
+    with pd.ExcelWriter((r'C:\Users\lkonig\Documents\GitHub\AM-Automated-Opportunity-Capture\Excel Sheets\Results_{0}.xlsx').format(datetime.now().strftime('%m-%d-%Y#%H%M'))) as writer:
         writeToExcel(writer)
-    with pd.ExcelWriter(r'C:\Users\whunter\Box\OppHunter\OppHunterResults.xlsx') as writer:
+    with pd.ExcelWriter(r'C:\Users\lkonig\Documents\Box\OppHunter\OppHunterResults.xlsx') as writer:
         writeToExcel(writer)
 
 
@@ -409,12 +409,12 @@ def sendEmail():
     # Opening Local Email Text File to retrieve information. Then stores
     # sensative information in variables.
 
-    file = open(r"C:\Users\whunter\Documents\Email Information.txt", "r")
+    file = open(r"C:\Users\lkonig\Documents\Email Information.txt", "r")
     lines = file.readlines()
     senderEmail = lines[1]
     password = lines[3]
     listAddresses = lines[4:]
-    list_of_reports = glob.glob(r'C:\Users\whunter\Documents\GitHub\AM-Automated-Opportunity-Capture\Excel Sheets\*')
+    list_of_reports = glob.glob(r'C:\Users\lkonig\Documents\GitHub\AM-Automated-Opportunity-Capture\Excel Sheets\*')
     latest_report = max(list_of_reports, key=os.path.getctime)
     subject = 'Opportunity Hunter Daily Update'
     # Stores string variables to be used in email.
@@ -495,9 +495,9 @@ def mainFunction():
     print('All sites scraped.')
 
     # SQL Queries
-    executeScriptsFromFile("C:\\Users\\whunter\Documents\\GitHub\\AM-Automated-Opportunity-Capture\\SQL Scripts\\cleanRawSQL.sql")
+    executeScriptsFromFile("C:\\Users\\lkonig\Documents\\GitHub\\AM-Automated-Opportunity-Capture\\SQL Scripts\\cleanRawSQL.sql")
     print('All tables cleaned.')
-    executeScriptsFromFile("C:\\Users\\whunter\\Documents\\GitHub\\AM-Automated-Opportunity-Capture\\SQL Scripts\\Master Function Query.sql")
+    executeScriptsFromFile("C:\\Users\\lkonig\\Documents\\GitHub\\AM-Automated-Opportunity-Capture\\SQL Scripts\\Master Function Query.sql")
     print('Master SQL Function Complete.')
 
     # Exporting to Excel
