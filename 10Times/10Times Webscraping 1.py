@@ -52,6 +52,12 @@ jobs = parseAds(jobs, 'td', 'text-drkr')
 
 for job in jobs:
     timing = job.find('td', class_='text-drkr')
+    # print(timing.text)
+    # print(timing)
+    # print(len(list(timing.children)))
+    print(timing.contents)
     title = job.find('h2')
-    URL = title.href
-    print(url)
+    URL = title.find('a')['href']
+    location = job.find('span', class_='venue text-drkr')
+    # description = location.next_sibling()
+    # print(description.text)
