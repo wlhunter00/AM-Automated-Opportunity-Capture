@@ -11,7 +11,7 @@ response = requests.get(url)
 
 
 def infiniteScroll(url, endElement, endCSS):
-    browser = webdriver.Chrome(executable_path=r'C:\\Users\\whunter\\Downloads\\chromedriver_win32 (1)\\chromedriver.exe')
+    browser = webdriver.Chrome(executable_path=r'C:\\Users\\wlhun\\Downloads\\chromedriver_win32\\chromedriver.exe')
     browser.get(url)
     lenOfPage = browser.execute_script("window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
     match = False
@@ -29,9 +29,9 @@ def infiniteScroll(url, endElement, endCSS):
     return code
 
 
-# source_data = infiniteScroll('https://10times.com/newyork-us/technology', 'ajax', 'display')
-soup = BeautifulSoup(response.text, "html.parser")
-# soup = BeautifulSoup(source_data, "html.parser")
+source_data = infiniteScroll('https://10times.com/newyork-us/technology', 'ajax', 'display')
+# soup = BeautifulSoup(response.text, "html.parser")
+soup = BeautifulSoup(source_data, "html.parser")
 
 # Categories: technology, business-consultancy, finance
 # Job object: <tr class="box">
