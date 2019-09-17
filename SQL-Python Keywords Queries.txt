@@ -6,6 +6,6 @@ select * from jobs_master_table:jobs_master_table
 select * from event_master_table:events_master_table
 select * from event_current_table where title like '%networking%' order by eventID desc:networking_related_events
 select * from event_current_table where title like '%data%' order by eventID desc:data_related_events
-select * from jobs_current_table where JobDescription like '%data%' order by JobID desc:data_related_jobs
+select * from jobs_current_table where JobDescription like '%data%' or JobDescription like '%analysis%' or JobDescription like '%discovery%' or JobDescription like '%compliance%' or JobDescription like '%ediscovery%' order by JobID desc:data_related_jobs
 select * from jobs_current_table where JobDescription like '%tech%' order by JobID desc:tech_related_jobs
 select * from jobs_current_table where JobDescription like '%financ%' order by JobID desc:finance_related_jobs
