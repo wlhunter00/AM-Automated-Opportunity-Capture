@@ -315,7 +315,7 @@ def scrapeEventbrite():
                             removeEscape(parseASCII(i['description']['text'])),
                             removeEscape(i['url']),
                             i['start']['local'],
-                            i['end']['local'], 
+                            i['end']['local'],
                             i['changed'][0: i['changed'].find('Z')],
                             i['status'],
                             str(i['online_event']),
@@ -422,7 +422,7 @@ def sendEmail():
     subject = 'Opportunity Hunter Daily Update'
     body = 'Hello,\n\nThis is the Daily Opportunity Hunter Report. Click the link to access the Excel Report.'
     # Update message to add on to the email to inform the team
-    update = ('Events have been encorperated to the process.')
+    update = ('Events have been incorporated to the process.')
     # HTML code for the email, str(dataFrame[X].count(axis=0)[0]) is the count
     # of the rows in each table.
     bodyParagraph = ('<br><a href="https://alvarezandmarsal.box.com/s/hpchn'
