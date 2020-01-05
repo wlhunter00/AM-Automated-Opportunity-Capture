@@ -20,6 +20,7 @@ on the tool’s findings will be emailed to the team.
 * [Introduction](#introduction)
 * [Table of Contents](#table-of-contents)
 * [Project Status](#project-status)
+  * [Recently added](#recently-added)
   * [To Do](#to-do)
 * [Technologies](#technologies)
 * [Installation](#installation)
