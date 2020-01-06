@@ -22,6 +22,7 @@ on the tool’s findings will be emailed to the team.
 * [Project Status](#project-status)
   * [Recently added](#recently-added)
   * [To Do](#to-do)
+  * [Bugs](#bugs)
 * [Technologies](#technologies)
 * [Installation](#installation)
 * [Walkthroughs](#Walkthroughs)
@@ -56,7 +57,7 @@ on the tool’s findings will be emailed to the team.
 
 Stable build is currently ready. Automated reports sent out daily. Functionality is currently being expanded on.
 
-###### **Recently Added**
+##### **Recently Added**
 - [X] Created this README as a guide to the application.
 - [X] Spelt Opportunity correctly everywhere.
 - [X] Fixed typos.
@@ -309,11 +310,11 @@ When looking at the site you want to scrape, first pull up the search page with 
 ### URL
 This one is the easiest to understand. The more specific the url, the better.
 
-```https://www.dasny.org/opportunities/rfps-bids?field_solicitation_classificatio_target_id=All&field_solicitation_type_target_id=All&field_goals_target_id=All&field_set_aside_target_id=All&query=&page=1```
+https://www.dasny.org/opportunities/rfps-bids?field_solicitation_classificatio_target_id=All&field_solicitation_type_target_id=All&field_goals_target_id=All&field_set_aside_target_id=All&query=&page=1
 
 is much better than
 
-```https://www.dasny.org/opportunities/rfps-bids```.
+https://www.dasny.org/opportunities/rfps-bids
 
 Also notice where there are variables that we want to manipulate. Usually this is pageNumber and category. Since the only thing we are going to manipulate is page number, we need to keep in mind where it is (```page=1``` at the end).
 
