@@ -459,3 +459,6 @@ Second, it could be an issue with A&M's blocker. Go to [Mimecast](https://www.mi
 
 ### No Jobs Added
 If an email was sent, but there were no jobs added, then the exporting to Excel and emailing chunks were most likely ok. You are going to want to look at the scraping and the SQL functions. Usually if something is wrong with the scraping function the script won't even run and that's how you know. If the script is running but no jobs are being shown, then something is wrong with the SQL queries, with the interactions between the main and current tables most likely. Check to see if there is a weird insertion that is ruining things.
+
+
+Contact William Hunter at **wlhunter00@gmail.com** with any questions or concerns.
